@@ -1,25 +1,30 @@
-import { LampContainer } from "./components/ui/lamp";
-import { motion } from "framer-motion";
+import Navbar from "./components/navbar";
+import Footer from "./components/footer";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-function App() {
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <p></p>,
+  },
+  {
+    path: "/:songID",
+    element: <div></div>,
+  },
+  {
+    path: "/songs",
+    element: <div></div>,
+  },
+]);
+
+export default function App() {
   return (
-    <>
-      <LampContainer>
-        <motion.h1
-          initial={{ opacity: 0.5, y: 0 }}
-          whileInView={{ opacity: 1, y: 100 }}
-          transition={{
-            delay: 0.3,
-            duration: 0.8,
-            ease: "easeInOut",
-          }}
-          className="bg-gradient-to-br from-slate-300 to-slate-500 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl"
-        >
-          Lyrix Simplified.
-        </motion.h1>
-      </LampContainer>
-    </>
+    <div className="flex flex-col h-screen w-screen overflow-hidden">
+      <Navbar />
+      <div className="flex-grow flex items-center justify-center">
+        <RouterProvider router={router} />
+      </div>
+      <Footer />
+    </div>
   );
 }
-
-export default App;
