@@ -12,7 +12,7 @@ const Footer = () => {
           Soham Nagi
         </a>
       </div>
-      <div className="">
+      <div>
         <ModeToggle />
       </div>
     </div>

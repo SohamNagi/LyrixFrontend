@@ -1,7 +1,31 @@
+import { useState, useEffect } from "react";
+
 export default function ModeToggle() {
+  // State to track the current theme
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem("theme") || "light"
+  );
+
+  useEffect(() => {
+    // Set the theme on the HTML root element
+    document.documentElement.setAttribute("data-theme", theme);
+    // Save the theme to localStorage
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  // Function to toggle theme
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+  };
+
   return (
     <label className="swap swap-rotate">
-      <input type="checkbox" className="theme-controller" value="dark" />
+      {/* Toggle button */}
+      <input
+        type="checkbox"
+        onChange={toggleTheme}
+        checked={theme === "dark"} // Sync the state with the checkbox
+      />
 
       {/* Sun icon */}
       <svg
