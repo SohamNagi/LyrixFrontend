@@ -2,7 +2,7 @@ import { Link } from "react-router";
 
 export default function Navbar() {
   return (
-    <div className="navbar border-b-4 border-dashed mb-2 bg-base-100">
+    <div className="navbar mb-2 bg-[#276bff]">
       <div className="navbar-start">
         <ul className="menu menu-horizontal px-1">
           <li>
@@ -17,12 +17,12 @@ export default function Navbar() {
           </li>
         </ul>
       </div>
-      <div className="navbar-end">
+      <div className="navbar-center">
         <Link to="/" className="btn btn-ghost font-['Russo_One'] text-3xl">
           Lyrix
         </Link>
       </div>
-      {/* <div className="navbar-end">
+      <div className="navbar-end">
         <button className="btn btn-ghost btn-circle">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -39,7 +39,7 @@ export default function Navbar() {
             />
           </svg>
         </button>
-      </div> */}
+      </div>
     </div>
   );
 }

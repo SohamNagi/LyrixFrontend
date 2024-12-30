@@ -77,7 +77,9 @@ export default function HeroSearch() {
     <div className="hero">
       <div className="hero-content text-center">
         <div className="flex-grow">
-          <h1 className="text-5xl font-bold">Hello there (DataBase Still Not Online! )</h1>
+          <h1 className="text-5xl font-bold">
+            Hello there (DataBase Still Not Online! )
+          </h1>
           <label className="mt-5 input input-bordered flex flex-grow flex-1 w-150 items-center gap-2">
             <input
               type="text"

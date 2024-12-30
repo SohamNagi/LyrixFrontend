@@ -2,8 +2,8 @@ import ModeToggle from "./modeToggle";
 
 const Footer = () => {
   return (
-    <div className="flex px-2 text-xl flex-row justify-between h-min">
-      <div className="flex flex-row whitespace-pre items-center">
+    <div className=" w-100% flex flex-row w-100% justify-between items-center px-2 h-max overflow-hidden">
+      <div className=" flex flex-row gap-1">
         <p className="font-bold text-sm">Made By </p>
         <a
           className="link text-sm text-[#1da1f2] font-bold"
@@ -13,7 +13,7 @@ const Footer = () => {
         </a>
       </div>
       <div>
-        <ModeToggle />
+        <ModeToggle></ModeToggle>
       </div>
     </div>
   );
