@@ -22,6 +22,7 @@ export default function ModeToggle() {
     <label className="swap swap-rotate">
       {/* Toggle button */}
       <input
+        name="modeSwitch"
         type="checkbox"
         onChange={toggleTheme}
         checked={theme === "dark"} // Sync the state with the checkbox

@@ -1,20 +1,28 @@
+import { Link } from "react-router";
+
 export default function Navbar() {
   return (
-    <div className="navbar bg-base-100">
+    <div className="navbar border-b-4 border-dashed mb-2 bg-base-100">
       <div className="navbar-start">
         <ul className="menu menu-horizontal px-1">
           <li>
-            <a className=" font-bold">Authors</a>
+            <Link to="/authors" className="font-bold">
+              Authors
+            </Link>
           </li>
           <li>
-            <a className=" font-bold">Songs</a>
+            <Link to="/songs" className="font-bold">
+              Songs
+            </Link>
           </li>
         </ul>
       </div>
-      <div className="navbar-center">
-        <a className="btn btn-ghost font-['Russo_One'] text-3xl">Lyrix</a>
-      </div>
       <div className="navbar-end">
+        <Link to="/" className="btn btn-ghost font-['Russo_One'] text-3xl">
+          Lyrix
+        </Link>
+      </div>
+      {/* <div className="navbar-end">
         <button className="btn btn-ghost btn-circle">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -31,7 +39,7 @@ export default function Navbar() {
             />
           </svg>
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }
