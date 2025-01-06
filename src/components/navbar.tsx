@@ -60,7 +60,7 @@ export default function Navbar() {
       setError(null);
 
       const response = await fetch(
-        `http://localhost:8080/api/songs/search/findByTitleContainingIgnoreCase?title=${encodeURIComponent(
+        `https://lyrixbackend.onrender.com/api/songs/search/findByTitleContainingIgnoreCase?title=${encodeURIComponent(
           searchQuery
         )}`
       );

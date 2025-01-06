@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 
-const BASE_URL = "http://lyrixbackend.onrender.com/api/";
+const BASE_URL = "https://lyrixbackend.onrender.com/api/";
 
 interface Song {
   title: string;
