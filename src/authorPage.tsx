@@ -46,7 +46,6 @@ export default function AuthorPage() {
 
   useEffect(() => {
     const fetchSongs = async () => {
-      setLoading(true);
       try {
         const response = await fetch(`${BASE_URL}${authorID}/songList`);
         if (!response.ok) {
@@ -57,12 +56,10 @@ export default function AuthorPage() {
         setLoading(false);
       } catch (error) {
         setError((error as Error).message);
-      } finally {
         setLoading(false);
       }
     };
     const fetchName = async () => {
-      setLoading(true);
       try {
         const response = await fetch(`${BASE_URL}${authorID}`);
         if (!response.ok) {
@@ -72,41 +69,59 @@ export default function AuthorPage() {
         setName(n.name);
       } catch (error) {
         setError((error as Error).message);
-      } finally {
         setLoading(false);
       }
     };
+    setLoading(true);
     fetchName();
     fetchSongs();
   }, [authorID]);
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <p className="text-lg font-medium">Error: {error}</p>
+        <button
+          className="btn btn-warning"
+          onClick={() => window.location.reload()}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div>
       <article>
         <h1 className=" capitalize font-extrabold text-xl my-4">{name}</h1>
       </article>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Song Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          {songList?._embedded.songs.map((value, index) => {
-            return (
-              <tr key={index}>
-                <th>{index + 1}</th>
-                <td>
-                  <Link to={`/songs/${value._links.self.href.slice(-4)}`}>
-                    {value.title}
-                  </Link>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      {!loading ? (
+        <table className="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Song Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {songList?._embedded.songs.map((value, index) => {
+              return (
+                <tr key={index}>
+                  <th>{index + 1}</th>
+                  <td>
+                    <Link to={`/songs/${value._links.self.href.slice(-4)}`}>
+                      {value.title}
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      ) : (
+        <span className="loading loading-spinner loading-md"></span>
+      )}
     </div>
   );
 }

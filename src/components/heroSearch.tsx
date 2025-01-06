@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { debounce } from "lodash";
 import { Link } from "react-router";
+import { TypewriterEffectSmooth } from "./ui/typewriter-effect";
 
 type Song = {
   title: string;
@@ -25,6 +26,16 @@ type ApiResponse = {
 };
 
 export default function HeroSearch() {
+  const words = [
+    {
+      text: "Lyrix:",
+      className: "text-5xl text-sitemain dark:text-sitemain font-extrabold",
+    },
+    {
+      text: "Your AI Poetry Companion",
+      className: "text-5xl text-black dark:base-content",
+    },
+  ];
   const [query, setQuery] = useState<string>("");
   const [results, setResults] = useState<Song[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -66,8 +77,8 @@ export default function HeroSearch() {
 
       const data: ApiResponse = await response.json();
       setResults(data._embedded.songs || []);
-    } catch (err) {
-      setError((err as Error).message || "Failed to fetch results");
+    } catch {
+      setError("Failed to fetch results (DataBase Likely Hibernating)");
     } finally {
       setLoading(false);
     }
@@ -77,9 +88,7 @@ export default function HeroSearch() {
     <div className="hero">
       <div className="hero-content text-center">
         <div className="flex-grow">
-          <h1 className="text-5xl font-bold">
-            Hello there (DataBase Still Not Online! )
-          </h1>
+          <TypewriterEffectSmooth words={words}></TypewriterEffectSmooth>
           <label className="mt-5 input input-bordered flex flex-grow flex-1 w-150 items-center gap-2">
             <input
               type="text"

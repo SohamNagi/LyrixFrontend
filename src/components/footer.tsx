@@ -6,7 +6,7 @@ const Footer = () => {
       <div className=" flex flex-row gap-1">
         <p className="font-bold text-sm">Made By </p>
         <a
-          className="link text-sm text-[#1da1f2] font-bold"
+          className="link text-sm text-sitemain font-bold"
           href="https://www.linkedin.com/in/sohamnagi/"
         >
           Soham Nagi

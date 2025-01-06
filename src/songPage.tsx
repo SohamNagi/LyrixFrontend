@@ -154,7 +154,8 @@ export default function SongPage() {
         </button>
       </div>
     );
-  if (!song) return <div>Loading...</div>;
+  if (!song)
+    return <span className="loading loading-spinner loading-md"></span>;
 
   return (
     <div className="drawer drawer-end">
@@ -166,12 +167,17 @@ export default function SongPage() {
         readOnly
       />
       <div className="drawer-content justify-self-center">
+        <div className="flex-col">
+          <article className="prose max-w-none prose-stone ">
+            <h1 className=" capitalize">{song.title}</h1>
+          </article>
+          <article className="prose self-center justify-self-center place-self-center max-w-none prose-stone ">
+            <Link to={`/authors/${aid}`}>
+              <p className=" capitalize">{name}</p>
+            </Link>
+          </article>
+        </div>
         <article className="prose prose-stone ">
-          <h1 className=" capitalize">{song.title}</h1>
-          <Link to={`/authors/${aid}`}>
-            <p className=" capitalize">{name}</p>
-          </Link>
-
           {lyrics.split("\n").map((line, index) => (
             <p
               key={index}

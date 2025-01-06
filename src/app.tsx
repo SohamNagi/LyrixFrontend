@@ -10,7 +10,7 @@ import AuthorPage from "./authorPage";
 // Create a layout component to handle common elements like Navbar and Footer
 function RootLayout() {
   return (
-    <div className="flex flex-col h-screen w-screen">
+    <div className="flex min-h-screen flex-col">
       <Navbar />
       <div className="flex-grow flex justify-center">
         <Outlet /> {/* Outlet renders the matched child route */}

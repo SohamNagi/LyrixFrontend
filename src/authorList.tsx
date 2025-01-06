@@ -57,34 +57,69 @@ export default function SongList() {
     fetchList();
   }, []);
 
+  if (loading)
+    return <span className="loading loading-spinner loading-md"></span>;
+
   return (
     <div>
       {error && <p>Error: {error}</p>}
       {loading ? (
-        <p>Loading...</p>
+        <span className="loading loading-spinner loading-md"></span>
       ) : (
         <div>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Author</th>
-              </tr>
-            </thead>
-            <tbody>
-              {nameList?._embedded.authors.map((value, index) => {
-                return (
+          <p className=" text-xl font-extrabold">Author Table</p>
+          <div className=" flex">
+            <div>
+              <table className="table">
+                <thead>
                   <tr>
-                    <th>{index + 1}</th>
-
-                    <Link to={`${value._links.author.href.slice(-3)}`}>
-                      <td>{value.name}</td>
-                    </Link>
+                    <th>#</th>
+                    <th>Author</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {nameList?._embedded.authors
+                    .slice(0, 15)
+                    .map((value, index) => {
+                      return (
+                        <tr key={index}>
+                          <th>{index + 1}</th>
+
+                          <Link to={`${value._links.author.href.slice(-3)}`}>
+                            <td>{value.name}</td>
+                          </Link>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Author</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {nameList?._embedded.authors
+                    .slice(15, 30)
+                    .map((value, index) => {
+                      return (
+                        <tr>
+                          <th>{index + 16}</th>
+
+                          <Link to={`${value._links.author.href.slice(-3)}`}>
+                            <td>{value.name}</td>
+                          </Link>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       )}
     </div>
