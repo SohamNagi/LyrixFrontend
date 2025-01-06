@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 
-const BASE_URL = "http://localhost:8080/api/authors";
+const BASE_URL = "http://lyrixbackend.onrender.com/api/authors";
 
 interface Author {
   name: string;
