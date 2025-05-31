@@ -49,7 +49,7 @@ export default function SongList() {
     const fetchList = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${BASE_URL}?page=${page}&size=10`);
+        const response = await fetch(`${BASE_URL}?page=${page}&size=13`);
         if (!response.ok) {
           throw new Error("Can't Fetch Song List");
         }
@@ -64,7 +64,8 @@ export default function SongList() {
     fetchList();
   }, [page]);
 
-  if (loading) return <span className="loading loading-spinner loading-md"></span>;
+  if (loading)
+    return <span className="loading loading-spinner loading-md"></span>;
 
   return (
     <div>
@@ -72,13 +73,13 @@ export default function SongList() {
       {loading ? (
         <span className="loading loading-spinner loading-md"></span>
       ) : (
-        <div className="flex flex-col items-center">
-          <p className=" text-5xl font-extrabold pb-4">Songs Table</p>
+        <div className="flex flex-col">
+          <p className=" text-xl font-extrabold">Song Table</p>
           <table className="table">
             <thead>
               <tr>
-                <th className=" text-2xl">#</th>
-                <th className=" text-2xl">Song Name</th>
+                <th className=" text-lg font-bold">#</th>
+                <th className=" text-lg font-bold">Song Name</th>
               </tr>
             </thead>
             <tbody>
@@ -100,29 +101,24 @@ export default function SongList() {
             </tbody>
           </table>
 
-          <span className=" w-full flex">
+          <span className=" w-full h-min flex">
             <button
-              className="btn flex-1"
+              className="btn h-min flex-1"
               onClick={() => {
                 if (page > 1) {
                   setPage(page - 1);
                 }
               }}
             >
-              -1
+              {"<-"}
             </button>
             <button
-              className="btn flex-1"
+              className="btn h-min flex-1"
               onClick={() => {
                 setPage(page + 1);
               }}
             >
-              +1
-            </button>
-          </span>
-          <span className=" w-full flex">
-            <button className=" pt-2 flex-1">
-              Page {page + 1} of {songList?.page.totalPages}
+              {"->"}
             </button>
           </span>
         </div>

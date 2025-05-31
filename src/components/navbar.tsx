@@ -148,7 +148,7 @@ export default function Navbar() {
                       className="p-2 cursor-pointer"
                       onClick={() => handleClick(result._links.self.href)}
                     >
-                      <Link
+                      <Link className=" capitalize"
                         to={{
                           pathname: `/songs/${songId}`,
                         }}

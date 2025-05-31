@@ -127,7 +127,7 @@ export default function HeroSearch() {
                       className="p-2 hover:bg-base-300 cursor-pointer"
                       onClick={() => handleClick(result._links.self.href)}
                     >
-                      <Link
+                      <Link className=" capitalize"
                         to={{
                           pathname: `/songs/${songId}`,
                         }}

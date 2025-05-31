@@ -85,7 +85,7 @@ export default function SongList() {
                         <tr key={index}>
                           <th>{index + 1}</th>
 
-                          <Link to={`${value._links.author.href.slice(-3)}`}>
+                          <Link className=" capitalize" to={`${value._links.author.href.slice(-3)}`}>
                             <td>{value.name}</td>
                           </Link>
                         </tr>
@@ -110,7 +110,7 @@ export default function SongList() {
                         <tr>
                           <th>{index + 16}</th>
 
-                          <Link to={`${value._links.author.href.slice(-3)}`}>
+                          <Link className=" capitalize" to={`${value._links.author.href.slice(-3)}`}>
                             <td>{value.name}</td>
                           </Link>
                         </tr>
