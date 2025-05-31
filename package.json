@@ -60,9 +60,6 @@
     "vaul": "^0.9.6",
     "zod": "^3.24.1"
   },
-  "overrides": {
-    "react-day-picker/date-fns": "3.6.0"
-  },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
     "@tailwindcss/typography": "^0.5.15",
