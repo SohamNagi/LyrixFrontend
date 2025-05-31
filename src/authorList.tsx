@@ -10,9 +10,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Loader2 } from "lucide-react";
-import { API_ENDPOINTS } from "@/config/api";
-
-const BASE_URL = API_ENDPOINTS.authors;
 
 interface Author {
   name: string;

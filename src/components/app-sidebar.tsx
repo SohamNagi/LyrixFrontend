@@ -10,7 +10,7 @@ import {
   SidebarHeader,
   SidebarFooter,
 } from "./ui/sidebar";
-import { Home, Music, Users, Search, Info, Library } from "lucide-react";
+import { Home, Music, Users, Info, Library } from "lucide-react";
 import { Link } from "react-router";
 
 const menuItems = [

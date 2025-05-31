@@ -11,9 +11,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Loader2 } from "lucide-react";
-import { API_ENDPOINTS } from "@/config/api";
-
-const BASE_URL = API_ENDPOINTS.authors;
 
 interface Song {
   title: string;
@@ -28,15 +25,6 @@ interface Song {
     song: { href: string };
     analyses: { href: string };
     author: { href: string };
-  };
-}
-
-interface AuthorResponse {
-  name: string;
-  _links: {
-    self: { href: string };
-    author: { href: string };
-    songList: { href: string };
   };
 }
 

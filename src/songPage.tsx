@@ -1,6 +1,3 @@
-// import { useEffect, useState } from "react";
-// import { useParams } from "react-router";
-
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
@@ -12,10 +9,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Loader2 } from "lucide-react";
-import { API_ENDPOINTS } from "@/config/api";
-
-const BASE_URL = API_ENDPOINTS.songs.replace("/songs", "");
 
 interface Song {
   title: string;
@@ -30,15 +23,6 @@ interface Song {
     song: { href: string };
     analyses: { href: string };
     author: { href: string };
-  };
-}
-
-interface AuthorResponse {
-  name: string;
-  _links: {
-    self: { href: string };
-    author: { href: string };
-    songList: { href: string };
   };
 }
 
@@ -144,8 +128,8 @@ export default function SongPage() {
         // } else {
         //   setAid("");
         // }
-      } catch (error) {
-        setError((error as Error).message);
+      } catch (err) {
+        setError((err as Error).message);
       }
     };
     fetchSong();
@@ -202,13 +186,13 @@ export default function SongPage() {
     setAnalysis(null);
   };
 
-  // if (error)
-  //   return (
-  //     <div className="flex flex-col items-center justify-center p-8">
-  //       <p className="text-lg font-medium text-red-600 mb-4">Error: {error}</p>
-  //       <Button onClick={() => window.location.reload()}>Retry</Button>
-  //     </div>
-  //   );
+  if (error)
+    return (
+      <div className="flex flex-col items-center justify-center p-8">
+        <p className="text-lg font-medium text-red-600 mb-4">Error: {error}</p>
+        <Button onClick={() => window.location.reload()}>Retry</Button>
+      </div>
+    );
 
   // if (!song)
   //   return (
