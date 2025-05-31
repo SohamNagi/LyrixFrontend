@@ -1,47 +1,46 @@
-import Navbar from "./components/navbar";
-import Footer from "./components/footer";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router";
-import HeroSearch from "./components/heroSearch";
-import SongPage from "./songPage";
-import AuthorList from "./authorList";
+import { SidebarProvider } from "./components/ui/sidebar";
+import { AppSidebar } from "./components/app-sidebar";
+import { Header } from "./components/header";
+import HomePage from "./pages/HomePage";
+import SongPage from "./SongPage";
+import AuthorList from "./AuthorList";
 import SongList from "./SongList";
-import AuthorPage from "./authorPage";
+import AuthorPage from "./AuthorPage";
 
-// Create a layout component to handle common elements like Navbar and Footer
+// Create a layout component to handle common elements like Sidebar and Header
 function RootLayout() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <div className="flex-grow flex justify-center">
-        <Outlet /> {/* Outlet renders the matched child route */}
+    <SidebarProvider>
+      <AppSidebar />
+      <div className="flex-1">
+        <Header />
+        <main className="min-h-screen bg-background">
+          <Outlet />
+        </main>
       </div>
-      <Footer />
-    </div>
+    </SidebarProvider>
   );
 }
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootLayout />, // Apply the layout for all child routes
+    element: <RootLayout />,
     children: [
       {
-        index: true, // This is the default route for "/"
-        element: (
-          <div className="self-center">
-            <HeroSearch />
-          </div>
-        ),
+        index: true,
+        element: <HomePage />,
       },
       {
         path: "songs",
         children: [
           {
-            index: true, // This matches "/songs"
+            index: true,
             element: <SongList />,
           },
           {
-            path: ":songID", // This matches "/songs/:songID"
+            path: ":songID",
             element: <SongPage />,
           },
         ],
@@ -50,11 +49,11 @@ const router = createBrowserRouter([
         path: "authors",
         children: [
           {
-            index: true, // This matches "/authors"
+            index: true,
             element: <AuthorList />,
           },
           {
-            path: ":authorID", // This matches "/authors/:authorID"
+            path: ":authorID",
             element: <AuthorPage />,
           },
         ],
