@@ -58,7 +58,7 @@ export default function SongPage() {
   const [song, setSong] = useState<Song | null>(dummySong);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [language, setLanguage] = useState<"en" | "hin" | "urd">("en");
-  const [error, setError] = useState<string | null>(null);
+  // const [error, setError] = useState<string | null>(null);
   const [lyrics, setLyrics] = useState(dummySong.englishLyrics);
   const [lineNum, setLineNum] = useState<number | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -128,8 +128,8 @@ export default function SongPage() {
         // } else {
         //   setAid("");
         // }
-      } catch (err) {
-        setError((err as Error).message);
+      } catch (error) {
+        // setError((error as Error).message);
       }
     };
     fetchSong();
@@ -186,13 +186,13 @@ export default function SongPage() {
     setAnalysis(null);
   };
 
-  if (error)
-    return (
-      <div className="flex flex-col items-center justify-center p-8">
-        <p className="text-lg font-medium text-red-600 mb-4">Error: {error}</p>
-        <Button onClick={() => window.location.reload()}>Retry</Button>
-      </div>
-    );
+  // if (error)
+  //   return (
+  //     <div className="flex flex-col items-center justify-center p-8">
+  //       <p className="text-lg font-medium text-red-600 mb-4">Error: {error}</p>
+  //       <Button onClick={() => window.location.reload()}>Retry</Button>
+  //     </div>
+  //   );
 
   // if (!song)
   //   return (
