@@ -108,7 +108,7 @@ export default function HomePage() {
       {/* Features Section */}
       <section className="py-16">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Why Choose LyricVerse?</h2>
+          <h2 className="text-3xl font-bold mb-4">Why Choose Lyrix?</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Our platform offers unique features designed to enhance your
             understanding and appreciation of South Asian musical poetry.
