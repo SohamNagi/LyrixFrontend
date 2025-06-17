@@ -66,7 +66,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="p-4">
         <p className="text-xs text-muted-foreground">
-          Celebrating South Asian music and poetry
+          Celebrating South Asian poetry
         </p>
       </SidebarFooter>
     </Sidebar>

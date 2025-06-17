@@ -203,130 +203,132 @@ export default function SongPage() {
   //   );
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-3xl capitalize">
-            {song?.title || "Loading..."}
-          </CardTitle>
-          {name && (
-            <Link
-              to={`/authors/${aid}`}
-              className="text-blue-600 hover:text-blue-800 hover:underline"
-            >
-              <p className="text-lg capitalize">by {name}</p>
-            </Link>
-          )}
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4 flex gap-2">
-            <Button
-              variant={language === "en" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setLanguage("en")}
-            >
-              English
-            </Button>
-            <Button
-              variant={language === "hin" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setLanguage("hin")}
-            >
-              Hindi
-            </Button>
-            <Button
-              variant={language === "urd" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setLanguage("urd")}
-            >
-              Urdu
-            </Button>
-          </div>
-
-          <div className="prose prose-stone max-w-none">
-            {lyrics.split("\n").map((line, index) => (
-              <Sheet
-                key={index}
-                open={drawerOpen && lineNum === index}
-                onOpenChange={(open) => {
-                  if (!open) closeDrawer();
-                }}
+    <div className="min-h-screen">
+      <div className="h-full">
+        <Card className="border-0 rounded-none">
+          <CardHeader className="border-b">
+            <CardTitle className="text-3xl capitalize">
+              {song?.title || "Loading..."}
+            </CardTitle>
+            {name && (
+              <Link
+                to={`/authors/${aid}`}
+                className="text-primary hover:underline"
               >
-                <SheetTrigger asChild>
-                  <p
-                    className="cursor-pointer hover:text-blue-600 hover:bg-blue-50 p-2 rounded transition-colors"
-                    onClick={() => handleLineClick(index)}
-                  >
-                    {line}
-                  </p>
-                </SheetTrigger>
-                <SheetContent className="w-[50%] sm:max-w-none">
-                  <SheetHeader>
-                    <SheetTitle>Line Analysis</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6">
-                    {loadingAnalysis ? (
-                      <div className="space-y-4">
-                        <div className="h-32 bg-gray-200 animate-pulse rounded"></div>
-                        <div className="h-4 bg-gray-200 animate-pulse rounded w-28"></div>
-                        <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
-                        <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
-                      </div>
-                    ) : analysis ? (
-                      <div className="space-y-6">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">
-                            Original Line:
-                          </h3>
-                          <p className="text-gray-700">
-                            {lineNum !== null
-                              ? song?.englishLyrics.split("\n")[lineNum]
-                              : "No original text available."}
-                          </p>
-                        </div>
+                <p className="text-lg capitalize">by {name}</p>
+              </Link>
+            )}
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4 flex gap-2">
+              <Button
+                variant={language === "en" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setLanguage("en")}
+              >
+                English
+              </Button>
+              <Button
+                variant={language === "hin" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setLanguage("hin")}
+              >
+                Hindi
+              </Button>
+              <Button
+                variant={language === "urd" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setLanguage("urd")}
+              >
+                Urdu
+              </Button>
+            </div>
 
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">
-                            Translation:
-                          </h3>
-                          <p className="text-gray-700">
-                            {analysis.translation ||
-                              "No translation available."}
-                          </p>
+            <div className="prose prose-stone max-w-none">
+              {lyrics.split("\n").map((line, index) => (
+                <Sheet
+                  key={index}
+                  open={drawerOpen && lineNum === index}
+                  onOpenChange={(open) => {
+                    if (!open) closeDrawer();
+                  }}
+                >
+                  <SheetTrigger asChild>
+                    <p
+                      className="cursor-pointer hover:text-blue-600 hover:bg-blue-50 p-2 rounded transition-colors"
+                      onClick={() => handleLineClick(index)}
+                    >
+                      {line}
+                    </p>
+                  </SheetTrigger>
+                  <SheetContent className="w-[50%] sm:max-w-none">
+                    <SheetHeader>
+                      <SheetTitle>Line Analysis</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6">
+                      {loadingAnalysis ? (
+                        <div className="space-y-4">
+                          <div className="h-32 bg-gray-200 animate-pulse rounded"></div>
+                          <div className="h-4 bg-gray-200 animate-pulse rounded w-28"></div>
+                          <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
+                          <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
                         </div>
+                      ) : analysis ? (
+                        <div className="space-y-6">
+                          <div>
+                            <h3 className="text-lg font-semibold mb-2">
+                              Original Line:
+                            </h3>
+                            <p className="text-gray-700">
+                              {lineNum !== null
+                                ? song?.englishLyrics.split("\n")[lineNum]
+                                : "No original text available."}
+                            </p>
+                          </div>
 
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">
-                            Interpretation:
-                          </h3>
-                          <p className="text-gray-700">
-                            {analysis.interpretation ||
-                              "No interpretation available."}
-                          </p>
-                        </div>
+                          <div>
+                            <h3 className="text-lg font-semibold mb-2">
+                              Translation:
+                            </h3>
+                            <p className="text-gray-700">
+                              {analysis.translation ||
+                                "No translation available."}
+                            </p>
+                          </div>
 
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">
-                            Connections to Context:
-                          </h3>
-                          <p className="text-gray-700">
-                            {analysis.connectionsToContext ||
-                              "No connections available."}
-                          </p>
+                          <div>
+                            <h3 className="text-lg font-semibold mb-2">
+                              Interpretation:
+                            </h3>
+                            <p className="text-gray-700">
+                              {analysis.interpretation ||
+                                "No interpretation available."}
+                            </p>
+                          </div>
+
+                          <div>
+                            <h3 className="text-lg font-semibold mb-2">
+                              Connections to Context:
+                            </h3>
+                            <p className="text-gray-700">
+                              {analysis.connectionsToContext ||
+                                "No connections available."}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      <p className="text-gray-500">
-                        No analysis available for this line.
-                      </p>
-                    )}
-                  </div>
-                </SheetContent>
-              </Sheet>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+                      ) : (
+                        <p className="text-gray-500">
+                          No analysis available for this line.
+                        </p>
+                      )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

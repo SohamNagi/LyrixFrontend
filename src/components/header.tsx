@@ -1,33 +1,80 @@
-import { SidebarTrigger } from "./ui/sidebar";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Search } from "lucide-react";
-import { Link } from "react-router";
+import { SearchComponent } from "./SearchComponent";
+import ModeToggle from "./modeToggle";
+import { Library, Music, Users, Info } from "lucide-react";
+import { Link, useLocation } from "react-router";
+import { cn } from "@/lib/utils";
+
+function HeaderContent() {
+  const location = useLocation();
+
+  const navItems = [
+    { title: "Songs", url: "/songs", icon: Music },
+    { title: "Authors", url: "/authors", icon: Users },
+    { title: "About", url: "/about", icon: Info },
+  ];
+
+  return (
+    <>
+      {/* Logo */}
+      <div className="flex items-center gap-2 mr-6">
+        <Link
+          to="/"
+          className="flex items-center gap-2 h-10 px-3 rounded-md hover:bg-primary/20 transition-colors"
+        >
+          <Library className="h-5 w-5 text-primary" />
+          <span className="font-bold text-lg">Lyrix</span>
+        </Link>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex items-center space-x-1 mr-6">
+        {navItems.map((item) => {
+          const isActive =
+            location.pathname === item.url ||
+            (item.url !== "/" && location.pathname.startsWith(item.url));
+
+          return (
+            <Link
+              key={item.title}
+              to={item.url}
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors",
+                "hover:bg-accent hover:text-accent-foreground",
+                isActive
+                  ? "bg-accent text-accent-foreground font-medium"
+                  : "text-muted-foreground"
+              )}
+            >
+              <item.icon className="h-4 w-4" />
+              <span>{item.title}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Spacer */}
+      <div className="flex-1"></div>
+
+      {/* Right side - Search and Mode Toggle */}
+      <div className="flex items-center space-x-3">
+        <div className="w-80">
+          <SearchComponent
+            className="w-full h-10"
+            showButton={false}
+            placeholder="Search songs, authors, or lyrics..."
+          />
+        </div>
+        <ModeToggle />
+      </div>
+    </>
+  );
+}
 
 export function Header() {
   return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <SidebarTrigger />
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search songs, authors, or lyrics..."
-                className="pl-8 md:w-[300px] lg:w-[400px]"
-              />
-            </div>
-          </div>
-          <nav className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/songs">Browse Songs</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/authors">Authors</Link>
-            </Button>
-          </nav>
-        </div>
+    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20">
+      <div className="flex h-16 items-center px-4">
+        <HeaderContent />
       </div>
     </header>
   );

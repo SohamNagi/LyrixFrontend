@@ -1,25 +1,24 @@
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router";
-import { SidebarProvider } from "./components/ui/sidebar";
-import { AppSidebar } from "./components/app-sidebar";
 import { Header } from "./components/header";
 import HomePage from "./pages/HomePage";
 import SongPage from "./SongPage";
 import AuthorList from "./AuthorList";
 import SongList from "./SongList";
 import AuthorPage from "./AuthorPage";
+import SearchResults from "./pages/SearchResults";
+import NotFound from "./pages/NotFound";
+import About from "./pages/About";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
-// Create a layout component to handle common elements like Sidebar and Header
+// Create a layout component to handle common elements like Header
 function RootLayout() {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <div className="flex-1">
-        <Header />
-        <main className="min-h-screen bg-background">
-          <Outlet />
-        </main>
-      </div>
-    </SidebarProvider>
+    <div className="min-h-screen w-full">
+      <Header />
+      <main className="w-full bg-background">
+        <Outlet />
+      </main>
+    </div>
   );
 }
 
@@ -58,10 +57,26 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: "search",
+        element: <SearchResults />,
+      },
+      {
+        path: "about",
+        element: <About />,
+      },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <ErrorBoundary>
+      <RouterProvider router={router} />
+    </ErrorBoundary>
+  );
 }

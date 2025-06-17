@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -9,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 interface Author {
   name: string;
@@ -44,6 +45,7 @@ export default function AuthorList() {
   const [nameList, setNameList] = useState<responseList | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     const fetchList = async () => {
@@ -295,21 +297,21 @@ export default function AuthorList() {
 
         const dummyResponse: responseList = {
           _embedded: {
-            authors: dummyAuthors,
+            authors: dummyAuthors.slice(page * 5, (page + 1) * 5),
           },
           _links: {
-            first: { href: "/authors?page=0&size=30" },
-            self: { href: "/authors" },
-            next: { href: "/authors?page=1&size=30" },
-            last: { href: "/authors?page=5&size=30" },
+            first: { href: "/authors?page=0&size=5" },
+            self: { href: `/authors?page=${page}&size=5` },
+            next: { href: `/authors?page=${page + 1}&size=5` },
+            last: { href: "/authors?page=29&size=5" },
             profile: { href: "/profile/authors" },
             search: { href: "/authors/search" },
           },
           page: {
-            size: 30,
+            size: 5,
             totalElements: 150,
-            totalPages: 5,
-            number: 0,
+            totalPages: 30,
+            number: page,
           },
         };
 
@@ -331,78 +333,120 @@ export default function AuthorList() {
       }
     };
     fetchList();
-  }, []);
+  }, [page]);
 
   if (loading)
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="h-screen flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin" />
         <span className="ml-2">Loading authors...</span>
       </div>
     );
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Authors</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {error && (
-          <div className="text-red-500 mb-4">
-            <p>Error: {error}</p>
+    <div className="h-screen flex flex-col">
+      <Card className="border-0 rounded-none flex-1 flex flex-col">
+        <CardHeader className="border-b flex-shrink-0">
+          <CardTitle className="text-2xl">Authors & Lyricists</CardTitle>
+          <p className="text-muted-foreground">
+            Browse through our collection of {nameList?.page.totalElements || 0}{" "}
+            authors and lyricists
+          </p>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col">
+          {error && (
+            <div className="text-red-500 mb-4">
+              <p>Error: {error}</p>
+            </div>
+          )}
+
+          <div className="flex-1 flex flex-col">
+            <div className="flex-1">
+              <Table className="h-full">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-16">#</TableHead>
+                    <TableHead>Author Name</TableHead>
+                    <TableHead className="w-32">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody className="h-full">
+                  {nameList?._embedded.authors.map((value, index) => (
+                    <TableRow key={index} className="h-1/5">
+                      <TableCell className="font-medium">
+                        {index + 1 + page * 5}
+                      </TableCell>
+                      <TableCell>
+                        <Link
+                          className="capitalize text-primary hover:underline font-medium"
+                          to={`/authors/${value._links.self.href.slice(-2)}`}
+                        >
+                          {value.name}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link
+                            to={`/authors${value._links.self.href.slice(-2)}`}
+                          >
+                            View
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {/* Fill remaining space with empty rows if less than 5 items */}
+                  {Array.from({
+                    length: 5 - (nameList?._embedded.authors.length || 0),
+                  }).map((_, index) => (
+                    <TableRow key={`empty-${index}`} className="h-1/5">
+                      <TableCell>&nbsp;</TableCell>
+                      <TableCell>&nbsp;</TableCell>
+                      <TableCell>&nbsp;</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
-        )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-16">#</TableHead>
-                <TableHead>Author</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {nameList?._embedded.authors.slice(0, 15).map((value, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell>
-                    <Link
-                      className="capitalize text-blue-600 hover:text-blue-800 hover:underline"
-                      to={`/authors/${value._links.author.href.slice(-3)}`}
-                    >
-                      {value.name}
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t flex-shrink-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (page > 0) {
+                  setPage(page - 1);
+                }
+              }}
+              disabled={page === 0}
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-16">#</TableHead>
-                <TableHead>Author</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {nameList?._embedded.authors.slice(15, 30).map((value, index) => (
-                <TableRow key={index + 15}>
-                  <TableCell className="font-medium">{index + 16}</TableCell>
-                  <TableCell>
-                    <Link
-                      className="capitalize text-blue-600 hover:text-blue-800 hover:underline"
-                      to={`/authors/${value._links.author.href.slice(-3)}`}
-                    >
-                      {value.name}
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>
+                Page {page + 1} of {nameList?.page.totalPages || 1}
+              </span>
+              <span>•</span>
+              <span>{nameList?.page.totalElements || 0} total authors</span>
+            </div>
+
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (nameList && page < nameList.page.totalPages - 1) {
+                  setPage(page + 1);
+                }
+              }}
+              disabled={!nameList || page >= nameList.page.totalPages - 1}
+            >
+              Next
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
