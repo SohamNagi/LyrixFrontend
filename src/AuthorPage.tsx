@@ -1,388 +1,245 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-
-interface Song {
-  title: string;
-  hindiLyrics: string;
-  urduLyrics: string;
-  englishLyrics: string;
-  hindiTheme: string | null;
-  urduTheme: string | null;
-  englishTheme: string | null;
-  _links: {
-    self: { href: string };
-    song: { href: string };
-    analyses: { href: string };
-    author: { href: string };
-  };
-}
-
-interface responseList {
-  _embedded: {
-    songs: Song[];
-  };
-  _links: {
-    self: { href: string };
-    first?: { href: string };
-    next?: { href: string };
-    last?: { href: string };
-  };
-  page: {
-    size: number;
-    totalElements: number;
-    totalPages: number;
-    number: number;
-  };
-}
+  ArrowLeft,
+  BookOpen,
+  Music,
+  Languages,
+  TrendingUp,
+  Filter,
+  Search,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { Author, Song } from "@/types";
+import { apiService } from "@/services/api";
+import { toTitleCase, formatLyricsPreview } from "@/lib/text-utils";
 
 export default function AuthorPage() {
-  const [songList, setSongList] = useState<responseList>();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [page, setPage] = useState(0);
   const { authorID } = useParams<{ authorID: string }>();
-  const [name, setName] = useState("");
+  const [author, setAuthor] = useState<Author | null>(null);
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [languageFilter, setLanguageFilter] = useState<string>("all");
+  const [filteredSongs, setFilteredSongs] = useState<Song[]>([]);
 
   useEffect(() => {
-    const fetchSongs = async () => {
+    const fetchAuthorData = async () => {
+      if (!authorID) return;
+
       try {
-        // Extended dummy data for testing - showing more songs for Kavi Pradeep
-        const allDummySongs: Song[] = [
-          {
-            title: "Ae Watan Mere Watan",
-            hindiLyrics: "ऐ वतन मेरे वतन...",
-            urduLyrics: "اے وطن میرے وطن...",
-            englishLyrics: "O my homeland, my homeland...",
-            hindiTheme: "देशभक्ति",
-            urduTheme: "وطن سے محبت",
-            englishTheme: "Patriotism",
-            _links: {
-              self: { href: "/songs/1234" },
-              song: { href: "/songs/1234" },
-              analyses: { href: "/songs/1234/analyses" },
-              author: { href: `/authors/${authorID}` },
-            },
-          },
-          {
-            title: "De Di Hamein Azadi",
-            hindiLyrics: "दे दी हमें आज़ादी...",
-            urduLyrics: "دے دی ہمیں آزادی...",
-            englishLyrics: "We have been given freedom...",
-            hindiTheme: "स्वतंत्रता",
-            urduTheme: "آزادی",
-            englishTheme: "Freedom",
-            _links: {
-              self: { href: "/songs/1235" },
-              song: { href: "/songs/1235" },
-              analyses: { href: "/songs/1235/analyses" },
-              author: { href: `/authors/${authorID}` },
-            },
-          },
-          {
-            title: "Aao Bacchon Tumhen Dikhayein",
-            hindiLyrics: "आओ बच्चों तुम्हें दिखाएं...",
-            urduLyrics: "آؤ بچو تمہیں دکھاؤں...",
-            englishLyrics: "Come children, let us show you...",
-            hindiTheme: "शिक्षा और देशभक्ति",
-            urduTheme: "تعلیم اور دیش بھکتی",
-            englishTheme: "Education and patriotism",
-            _links: {
-              self: { href: "/songs/1236" },
-              song: { href: "/songs/1236" },
-              analyses: { href: "/songs/1236/analyses" },
-              author: { href: `/authors/${authorID}` },
-            },
-          },
-          {
-            title: "Zindagi Kaisi Hai Paheli Haye",
-            hindiLyrics: "ज़िन्दगी कैसी है पहेली हाए...",
-            urduLyrics: "زندگی کیسی ہے پہیلی ہائے...",
-            englishLyrics: "Life is such a puzzle, oh...",
-            hindiTheme: "जीवन की जटिलता",
-            urduTheme: "زندگی کی پیچیدگی",
-            englishTheme: "Complexity of life",
-            _links: {
-              self: { href: "/songs/1237" },
-              song: { href: "/songs/1237" },
-              analyses: { href: "/songs/1237/analyses" },
-              author: { href: `/authors/${authorID}` },
-            },
-          },
-          {
-            title: "Jago Mohan Pyare",
-            hindiLyrics: "जागो मोहन प्यारे...",
-            urduLyrics: "جاگو موہن پیارے...",
-            englishLyrics: "Wake up, dear beloved...",
-            hindiTheme: "भक्ति और प्रेम",
-            urduTheme: "بھکتی اور محبت",
-            englishTheme: "Devotion and love",
-            _links: {
-              self: { href: "/songs/1238" },
-              song: { href: "/songs/1238" },
-              analyses: { href: "/songs/1238/analyses" },
-              author: { href: `/authors/${authorID}` },
-            },
-          },
-          {
-            title: "Door Hato Ae Duniya Walo",
-            hindiLyrics: "दूर हटो ऐ दुनिया वालो...",
-            urduLyrics: "دور ہٹو اے دنیا والو...",
-            englishLyrics: "Move away, O people of the world...",
-            hindiTheme: "समाज सुधार",
-            urduTheme: "معاشرتی اصلاح",
-            englishTheme: "Social reform",
-            _links: {
-              self: { href: "/songs/1239" },
-              song: { href: "/songs/1239" },
-              analyses: { href: "/songs/1239/analyses" },
-              author: { href: `/authors/${authorID}` },
-            },
-          },
-          {
-            title: "Hum Laye Hain Toofan Se",
-            hindiLyrics: "हम लाए हैं तूफान से...",
-            urduLyrics: "ہم لائے ہیں طوفان سے...",
-            englishLyrics: "We have brought from the storm...",
-            hindiTheme: "संघर्ष और विजय",
-            urduTheme: "جدوجہد اور فتح",
-            englishTheme: "Struggle and victory",
-            _links: {
-              self: { href: "/songs/1240" },
-              song: { href: "/songs/1240" },
-              analyses: { href: "/songs/1240/analyses" },
-              author: { href: `/authors/${authorID}` },
-            },
-          },
-          {
-            title: "Chal Chal Re Naujawan",
-            hindiLyrics: "चल चल रे नौजवान...",
-            urduLyrics: "چل چل رے نوجوان...",
-            englishLyrics: "Come on, young person...",
-            hindiTheme: "युवा प्रेरणा",
-            urduTheme: "نوجوانوں کی حوصلہ افزائی",
-            englishTheme: "Youth inspiration",
-            _links: {
-              self: { href: "/songs/1241" },
-              song: { href: "/songs/1241" },
-              analyses: { href: "/songs/1241/analyses" },
-              author: { href: `/authors/${authorID}` },
-            },
-          },
-        ];
+        setLoading(true);
 
-        const startIndex = page * 5;
-        const endIndex = startIndex + 5;
-        const currentPageSongs = allDummySongs.slice(startIndex, endIndex);
+        // Fetch author details and their songs
+        const [authorData, songsData] = await Promise.all([
+          apiService.getAuthorById(authorID),
+          apiService.getSongsByAuthor(authorID),
+        ]);
 
-        const dummyResponse: responseList = {
-          _embedded: {
-            songs: currentPageSongs,
-          },
-          _links: {
-            self: { href: `/authors/${authorID}/songList?page=${page}&size=5` },
-            first: { href: `/authors/${authorID}/songList?page=0&size=5` },
-            next:
-              page < Math.ceil(allDummySongs.length / 5) - 1
-                ? {
-                    href: `/authors/${authorID}/songList?page=${
-                      page + 1
-                    }&size=5`,
-                  }
-                : undefined,
-            last: {
-              href: `/authors/${authorID}/songList?page=${
-                Math.ceil(allDummySongs.length / 5) - 1
-              }&size=5`,
-            },
-          },
-          page: {
-            size: 5,
-            totalElements: allDummySongs.length,
-            totalPages: Math.ceil(allDummySongs.length / 5),
-            number: page,
-          },
-        };
-
-        setSongList(dummyResponse);
-        setLoading(false);
-
-        // Uncomment below for real API calls
-        // const response = await fetch(`${BASE_URL}${authorID}/songList?page=${page}&size=5`);
-        // if (!response.ok) {
-        //   throw new Error("Can't Fetch List");
-        // }
-        // const list = (await response.json()) as responseList;
-        // setSongList(list);
-        // setLoading(false);
-      } catch (error) {
-        setError((error as Error).message);
+        setAuthor(authorData);
+        setSongs(Array.isArray(songsData) ? songsData : []);
+        setFilteredSongs(Array.isArray(songsData) ? songsData : []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
         setLoading(false);
       }
     };
 
-    const fetchName = async () => {
-      try {
-        // Use dummy data based on authorID
-        const authorNames: { [key: string]: string } = {
-          "1": "Kavi Pradeep",
-          "2": "Gulzar",
-          "3": "Javed Akhtar",
-          "4": "Sahir Ludhianvi",
-          "5": "Anand Bakshi",
-          "6": "Kaifi Azmi",
-          "7": "Majrooh Sultanpuri",
-          "8": "Hasrat Jaipuri",
-          "9": "Shakeel Badayuni",
-          "10": "Raja Mehdi Ali Khan",
-        };
+    fetchAuthorData();
+  }, [authorID]);
 
-        setName(authorNames[authorID || "1"] || "Unknown Author");
+  useEffect(() => {
+    let filtered = songs;
 
-        // Uncomment below for real API calls
-        // const response = await fetch(`${BASE_URL}${authorID}`);
-        // if (!response.ok) {
-        //   throw new Error("Can't Fetch Name!");
-        // }
-        // const n = (await response.json()) as AuthorResponse;
-        // setName(n.name);
-      } catch (error) {
-        setError((error as Error).message);
-        setLoading(false);
-      }
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter((song) =>
+        song.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by language
+    if (languageFilter !== "all") {
+      filtered = filtered.filter((song) => {
+        switch (languageFilter) {
+          case "en":
+            return song.english_lyrics;
+          case "hi":
+            return song.hindi_lyrics;
+          case "ur":
+            return song.urdu_lyrics;
+          default:
+            return true;
+        }
+      });
+    }
+
+    setFilteredSongs(filtered);
+  }, [searchTerm, languageFilter, songs]);
+
+  const getLanguageStats = () => {
+    const stats = {
+      total: songs.length,
+      hindi: songs.filter((song) => song.hindi_lyrics).length,
+      urdu: songs.filter((song) => song.urdu_lyrics).length,
+      english: songs.filter((song) => song.english_lyrics).length,
     };
+    return stats;
+  };
 
-    setLoading(true);
-    fetchName();
-    fetchSongs();
-  }, [authorID, page]);
-
-  if (loading)
+  if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin" />
-        <span className="ml-2">Loading songs...</span>
+      <div className="container mx-auto px-4 py-8">
+        <Skeleton className="h-8 w-32 mb-6" />
+        <div className="space-y-6">
+          <Skeleton className="h-12 w-3/4" />
+          <Skeleton className="h-6 w-1/2" />
+          <div className="grid md:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-24" />
+            ))}
+          </div>
+          <Skeleton className="h-64 w-full" />
+        </div>
       </div>
     );
+  }
 
-  if (error) {
+  if (error || !author) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center">
-        <p className="text-lg font-medium text-red-600 mb-4">Error: {error}</p>
-        <Button onClick={() => window.location.reload()}>Retry</Button>
+      <div className="container mx-auto px-4 py-8">
+        <Button variant="ghost" asChild className="mb-4">
+          <Link to="/authors">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Authors
+          </Link>
+        </Button>
+        <Alert variant="destructive">
+          <AlertDescription>
+            {error || "Author not found"}. Please try again or go back to the
+            authors list.
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col">
-      <Card className="border-0 rounded-none flex-1 flex flex-col">
-        <CardHeader className="border-b flex-shrink-0">
-          <CardTitle className="text-3xl capitalize">
-            {name || "Author"}
-          </CardTitle>
+    <div className="container mx-auto px-4 py-8">
+      {/* Navigation */}
+      <Button variant="ghost" asChild className="mb-6">
+        <Link to="/authors">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Authors
+        </Link>
+      </Button>
+
+      {/* Author Header */}
+      <div className="mb-8">
+        <div className="flex items-start gap-4 mb-6">
+          <div className="bg-primary/10 p-4 rounded-lg">
+            <BookOpen className="h-12 w-12 text-primary" />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-4xl font-bold mb-2">
+              {toTitleCase(author.name)}
+            </h1>
+            <p className="text-lg text-muted-foreground">Lyricist & Poet</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Songs Section */}
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold">Songs & Compositions</h2>
+        </div>
+
+        {/* Filters */}
+        <div className="mb-6 space-y-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search songs..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="mb-6">
           <p className="text-muted-foreground">
-            Songs by {name} • {songList?.page.totalElements || 0} total songs
+            Showing {filteredSongs.length} of {songs.length} songs
           </p>
-        </CardHeader>
-        <CardContent className="flex-1 flex flex-col">
-          <div className="flex-1 flex flex-col">
-            <div className="flex-1">
-              <Table className="h-full">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-16">#</TableHead>
-                    <TableHead>Song Name</TableHead>
-                    <TableHead className="w-32">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody className="h-full">
-                  {songList?._embedded.songs.map((value, index) => (
-                    <TableRow key={index} className="h-1/5">
-                      <TableCell className="font-medium">
-                        {index + 1 + page * 5}
-                      </TableCell>
-                      <TableCell>
-                        <Link
-                          to={`/songs/${value._links.self.href.slice(-4)}`}
-                          className="text-primary hover:underline font-medium"
-                        >
-                          {value.title}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link
-                            to={`/songs/${value._links.self.href.slice(-4)}`}
-                          >
-                            View
-                          </Link>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {/* Fill remaining space with empty rows if less than 5 items */}
-                  {Array.from({
-                    length: 5 - (songList?._embedded.songs.length || 0),
-                  }).map((_, index) => (
-                    <TableRow key={`empty-${index}`} className="h-1/5">
-                      <TableCell>&nbsp;</TableCell>
-                      <TableCell>&nbsp;</TableCell>
-                      <TableCell>&nbsp;</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+        </div>
+
+        {/* Songs Grid */}
+        {filteredSongs.length === 0 ? (
+          <div className="text-center py-12">
+            <Music className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold mb-2">No songs found</h3>
+            <p className="text-muted-foreground">
+              {songs.length === 0
+                ? "This author doesn't have any songs in our database yet."
+                : "Try adjusting your search or filter criteria."}
+            </p>
           </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredSongs.map((song) => (
+              <Card
+                key={song.id}
+                className="hover:shadow-lg transition-shadow h-full flex flex-col"
+              >
+                <CardHeader className="flex-shrink-0">
+                  <CardTitle className="line-clamp-2 text-lg min-h-[3.5rem] leading-7">
+                    {toTitleCase(song.title)}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col">
+                  <div className="space-y-4 flex-1">
+                    {/* Preview */}
+                    {song.english_lyrics && (
+                      <div className="flex-1">
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {formatLyricsPreview(song.english_lyrics, 100)}
+                        </p>
+                      </div>
+                    )}
 
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t flex-shrink-0">
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (page > 0) {
-                  setPage(page - 1);
-                }
-              }}
-              disabled={page === 0}
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Previous
-            </Button>
+                    <Separator />
 
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>
-                Page {page + 1} of {songList?.page.totalPages || 1}
-              </span>
-              <span>•</span>
-              <span>{songList?.page.totalElements || 0} total songs</span>
-            </div>
-
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (songList && page < songList.page.totalPages - 1) {
-                  setPage(page + 1);
-                }
-              }}
-              disabled={!songList || page >= songList.page.totalPages - 1}
-            >
-              Next
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </Button>
+                    {/* Action Button */}
+                    <div className="mt-auto">
+                      <Button asChild size="sm" className="w-full">
+                        <Link to={`/songs/${song.id}`}>View Song</Link>
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
     </div>
   );
 }

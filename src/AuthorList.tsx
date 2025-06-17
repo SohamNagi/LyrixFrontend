@@ -1,452 +1,285 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { Button } from "@/components/ui/button";
+import { Users, Search, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-
-interface Author {
-  name: string;
-  _links: {
-    self: { href: string };
-    author: { href: string };
-    songList: { href: string };
-  };
-}
-
-interface responseList {
-  _embedded: {
-    authors: Author[];
-  };
-  _links: {
-    first: { href: string };
-    self: { href: string };
-    next: { href: string };
-    last: { href: string };
-    profile: { href: string };
-    search: { href: string };
-  };
-  page: {
-    size: number;
-    totalElements: number;
-    totalPages: number;
-    number: number;
-  };
-}
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Author, PaginatedResponse } from "@/types";
+import { apiService } from "@/services/api";
+import { toTitleCase } from "@/lib/text-utils";
 
 export default function AuthorList() {
-  const [nameList, setNameList] = useState<responseList | null>(null);
+  const [allAuthors, setAllAuthors] = useState<Author[]>([]);
+  const [filteredAuthors, setFilteredAuthors] = useState<Author[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const ITEMS_PER_PAGE = 12;
+
+  // Calculate pagination for filtered results
+  const getPaginatedData = () => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const paginatedAuthors = filteredAuthors.slice(startIndex, endIndex);
+
+    return {
+      data: paginatedAuthors,
+      page: currentPage,
+      per_page: ITEMS_PER_PAGE,
+      total: filteredAuthors.length,
+      pages: Math.ceil(filteredAuthors.length / ITEMS_PER_PAGE),
+    };
+  };
+
+  const fetchAuthors = async () => {
+    try {
+      setLoading(true);
+      const authorsData = await apiService.getAuthorsPaginated(1, 1000); // Get all authors
+      setAllAuthors(authorsData.data);
+      setFilteredAuthors(authorsData.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchList = async () => {
-      setLoading(true);
-      try {
-        // Use dummy data for testing
-        const dummyAuthors: Author[] = [
-          {
-            name: "Kavi Pradeep",
-            _links: {
-              self: { href: "/authors/1" },
-              author: { href: "/authors/1" },
-              songList: { href: "/authors/1/songs" },
-            },
-          },
-          {
-            name: "Gulzar",
-            _links: {
-              self: { href: "/authors/2" },
-              author: { href: "/authors/2" },
-              songList: { href: "/authors/2/songs" },
-            },
-          },
-          {
-            name: "Javed Akhtar",
-            _links: {
-              self: { href: "/authors/3" },
-              author: { href: "/authors/3" },
-              songList: { href: "/authors/3/songs" },
-            },
-          },
-          {
-            name: "Sahir Ludhianvi",
-            _links: {
-              self: { href: "/authors/4" },
-              author: { href: "/authors/4" },
-              songList: { href: "/authors/4/songs" },
-            },
-          },
-          {
-            name: "Anand Bakshi",
-            _links: {
-              self: { href: "/authors/5" },
-              author: { href: "/authors/5" },
-              songList: { href: "/authors/5/songs" },
-            },
-          },
-          {
-            name: "Kaifi Azmi",
-            _links: {
-              self: { href: "/authors/6" },
-              author: { href: "/authors/6" },
-              songList: { href: "/authors/6/songs" },
-            },
-          },
-          {
-            name: "Majrooh Sultanpuri",
-            _links: {
-              self: { href: "/authors/7" },
-              author: { href: "/authors/7" },
-              songList: { href: "/authors/7/songs" },
-            },
-          },
-          {
-            name: "Hasrat Jaipuri",
-            _links: {
-              self: { href: "/authors/8" },
-              author: { href: "/authors/8" },
-              songList: { href: "/authors/8/songs" },
-            },
-          },
-          {
-            name: "Shakeel Badayuni",
-            _links: {
-              self: { href: "/authors/9" },
-              author: { href: "/authors/9" },
-              songList: { href: "/authors/9/songs" },
-            },
-          },
-          {
-            name: "Raja Mehdi Ali Khan",
-            _links: {
-              self: { href: "/authors/10" },
-              author: { href: "/authors/10" },
-              songList: { href: "/authors/10/songs" },
-            },
-          },
-          {
-            name: "Prasoon Joshi",
-            _links: {
-              self: { href: "/authors/11" },
-              author: { href: "/authors/11" },
-              songList: { href: "/authors/11/songs" },
-            },
-          },
-          {
-            name: "Irshad Kamil",
-            _links: {
-              self: { href: "/authors/12" },
-              author: { href: "/authors/12" },
-              songList: { href: "/authors/12/songs" },
-            },
-          },
-          {
-            name: "Amitabh Bhattacharya",
-            _links: {
-              self: { href: "/authors/13" },
-              author: { href: "/authors/13" },
-              songList: { href: "/authors/13/songs" },
-            },
-          },
-          {
-            name: "Varun Grover",
-            _links: {
-              self: { href: "/authors/14" },
-              author: { href: "/authors/14" },
-              songList: { href: "/authors/14/songs" },
-            },
-          },
-          {
-            name: "Kausar Munir",
-            _links: {
-              self: { href: "/authors/15" },
-              author: { href: "/authors/15" },
-              songList: { href: "/authors/15/songs" },
-            },
-          },
-          {
-            name: "Swanand Kirkire",
-            _links: {
-              self: { href: "/authors/16" },
-              author: { href: "/authors/16" },
-              songList: { href: "/authors/16/songs" },
-            },
-          },
-          {
-            name: "Kumaar",
-            _links: {
-              self: { href: "/authors/17" },
-              author: { href: "/authors/17" },
-              songList: { href: "/authors/17/songs" },
-            },
-          },
-          {
-            name: "Manoj Muntashir",
-            _links: {
-              self: { href: "/authors/18" },
-              author: { href: "/authors/18" },
-              songList: { href: "/authors/18/songs" },
-            },
-          },
-          {
-            name: "Priya Saraiya",
-            _links: {
-              self: { href: "/authors/19" },
-              author: { href: "/authors/19" },
-              songList: { href: "/authors/19/songs" },
-            },
-          },
-          {
-            name: "Anvita Dutt",
-            _links: {
-              self: { href: "/authors/20" },
-              author: { href: "/authors/20" },
-              songList: { href: "/authors/20/songs" },
-            },
-          },
-          {
-            name: "Sagar",
-            _links: {
-              self: { href: "/authors/21" },
-              author: { href: "/authors/21" },
-              songList: { href: "/authors/21/songs" },
-            },
-          },
-          {
-            name: "Garima Wahal",
-            _links: {
-              self: { href: "/authors/22" },
-              author: { href: "/authors/22" },
-              songList: { href: "/authors/22/songs" },
-            },
-          },
-          {
-            name: "Shellee",
-            _links: {
-              self: { href: "/authors/23" },
-              author: { href: "/authors/23" },
-              songList: { href: "/authors/23/songs" },
-            },
-          },
-          {
-            name: "Raqueeb Alam",
-            _links: {
-              self: { href: "/authors/24" },
-              author: { href: "/authors/24" },
-              songList: { href: "/authors/24/songs" },
-            },
-          },
-          {
-            name: "Puneet Sharma",
-            _links: {
-              self: { href: "/authors/25" },
-              author: { href: "/authors/25" },
-              songList: { href: "/authors/25/songs" },
-            },
-          },
-          {
-            name: "Hussain Haidry",
-            _links: {
-              self: { href: "/authors/26" },
-              author: { href: "/authors/26" },
-              songList: { href: "/authors/26/songs" },
-            },
-          },
-          {
-            name: "Azeem Shirazi",
-            _links: {
-              self: { href: "/authors/27" },
-              author: { href: "/authors/27" },
-              songList: { href: "/authors/27/songs" },
-            },
-          },
-          {
-            name: "Kshitij Patwardhan",
-            _links: {
-              self: { href: "/authors/28" },
-              author: { href: "/authors/28" },
-              songList: { href: "/authors/28/songs" },
-            },
-          },
-          {
-            name: "Siddhant Kaushal",
-            _links: {
-              self: { href: "/authors/29" },
-              author: { href: "/authors/29" },
-              songList: { href: "/authors/29/songs" },
-            },
-          },
-          {
-            name: "Abhendra Kumar Upadhyay",
-            _links: {
-              self: { href: "/authors/30" },
-              author: { href: "/authors/30" },
-              songList: { href: "/authors/30/songs" },
-            },
-          },
-        ];
+    fetchAuthors();
+  }, []);
 
-        const dummyResponse: responseList = {
-          _embedded: {
-            authors: dummyAuthors.slice(page * 5, (page + 1) * 5),
-          },
-          _links: {
-            first: { href: "/authors?page=0&size=5" },
-            self: { href: `/authors?page=${page}&size=5` },
-            next: { href: `/authors?page=${page + 1}&size=5` },
-            last: { href: "/authors?page=29&size=5" },
-            profile: { href: "/profile/authors" },
-            search: { href: "/authors/search" },
-          },
-          page: {
-            size: 5,
-            totalElements: 150,
-            totalPages: 30,
-            number: page,
-          },
-        };
+  // Filter authors when search term changes
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredAuthors(allAuthors);
+    } else {
+      const filtered = allAuthors.filter((author) =>
+        author.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredAuthors(filtered);
+    }
+    setCurrentPage(1); // Reset to first page when search changes
+  }, [searchTerm, allAuthors]);
 
-        setNameList(dummyResponse);
-        setLoading(false);
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
-        // Uncomment below for real API calls
-        // const response = await fetch(`${BASE_URL}?size=30`);
-        // if (!response.ok) {
-        //   throw new Error("Can't Fetch Author List");
-        // }
-        // const list = (await response.json()) as responseList;
-        // setNameList(list);
-        // setLoading(false);
-      } catch (error) {
-        setError((error as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchList();
-  }, [page]);
+  const paginatedData = getPaginatedData();
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin" />
-        <span className="ml-2">Loading authors...</span>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <Skeleton className="h-12 w-64 mb-4" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-2/3" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Alert variant="destructive">
+          <AlertDescription>
+            Error loading authors: {error}. Please try again later.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
-    <div className="h-screen flex flex-col">
-      <Card className="border-0 rounded-none flex-1 flex flex-col">
-        <CardHeader className="border-b flex-shrink-0">
-          <CardTitle className="text-2xl">Authors & Lyricists</CardTitle>
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold mb-4 flex items-center gap-3">
+          <Users className="h-10 w-10 text-primary" />
+          Authors & Poets
+        </h1>
+        <p className="text-lg text-muted-foreground">
+          Discover the brilliant words of {paginatedData.total} celebrated
+          lyricists and poets
+        </p>
+      </div>
+
+      {/* Search */}
+      <div className="mb-8">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Search authors..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+            disabled={loading}
+          />
+        </div>
+      </div>
+
+      {/* Authors Grid */}
+      {!paginatedData.data || paginatedData.data.length === 0 ? (
+        <div className="text-center py-12">
+          <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-xl font-semibold mb-2">No authors found</h3>
           <p className="text-muted-foreground">
-            Browse through our collection of {nameList?.page.totalElements || 0}{" "}
-            authors and lyricists
+            Try adjusting your search criteria
           </p>
-        </CardHeader>
-        <CardContent className="flex-1 flex flex-col">
-          {error && (
-            <div className="text-red-500 mb-4">
-              <p>Error: {error}</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {paginatedData.data.map((author) => (
+              <Card
+                key={author.id}
+                className="hover:shadow-lg transition-shadow h-full flex flex-col"
+              >
+                <CardHeader className="flex-shrink-0">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="line-clamp-2 mb-2 min-h-[3rem] leading-6">
+                        {toTitleCase(author.name)}
+                      </CardTitle>
+                    </div>
+                    <div className="bg-primary/10 p-2 rounded-lg">
+                      <BookOpen className="h-6 w-6 text-primary" />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col">
+                  <div className="space-y-4 flex-1">
+                    {/* Song Count */}
+                    {author.song_count !== undefined && (
+                      <div className="text-sm text-muted-foreground">
+                        {author.song_count}{" "}
+                        {author.song_count === 1 ? "song" : "songs"}
+                      </div>
+                    )}
+
+                    {/* Action Button */}
+                    <div className="mt-auto">
+                      <Link
+                        to={`/authors/${author.id}`}
+                        className="block w-full"
+                      >
+                        <div className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md text-sm font-medium text-center transition-colors">
+                          View Profile
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {paginatedData && paginatedData.pages > 1 && (
+            <div className="mt-8">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage > 1) {
+                          handlePageChange(currentPage - 1);
+                        }
+                      }}
+                      className={
+                        currentPage <= 1 ? "pointer-events-none opacity-50" : ""
+                      }
+                    />
+                  </PaginationItem>
+
+                  {Array.from(
+                    { length: Math.min(5, paginatedData.pages) },
+                    (_, i) => {
+                      const pageNum =
+                        currentPage <= 3
+                          ? i + 1
+                          : currentPage >= paginatedData.pages - 2
+                          ? paginatedData.pages - 4 + i
+                          : currentPage - 2 + i;
+
+                      if (pageNum < 1 || pageNum > paginatedData.pages)
+                        return null;
+
+                      return (
+                        <PaginationItem key={pageNum}>
+                          <PaginationLink
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handlePageChange(pageNum);
+                            }}
+                            isActive={currentPage === pageNum}
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    }
+                  )}
+
+                  {paginatedData.pages > 5 &&
+                    currentPage < paginatedData.pages - 2 && (
+                      <PaginationItem>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    )}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage < paginatedData.pages) {
+                          handlePageChange(currentPage + 1);
+                        }
+                      }}
+                      className={
+                        currentPage >= paginatedData.pages
+                          ? "pointer-events-none opacity-50"
+                          : ""
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           )}
-
-          <div className="flex-1 flex flex-col">
-            <div className="flex-1">
-              <Table className="h-full">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-16">#</TableHead>
-                    <TableHead>Author Name</TableHead>
-                    <TableHead className="w-32">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody className="h-full">
-                  {nameList?._embedded.authors.map((value, index) => (
-                    <TableRow key={index} className="h-1/5">
-                      <TableCell className="font-medium">
-                        {index + 1 + page * 5}
-                      </TableCell>
-                      <TableCell>
-                        <Link
-                          className="capitalize text-primary hover:underline font-medium"
-                          to={`/authors/${value._links.self.href.slice(-2)}`}
-                        >
-                          {value.name}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link
-                            to={`/authors${value._links.self.href.slice(-2)}`}
-                          >
-                            View
-                          </Link>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {/* Fill remaining space with empty rows if less than 5 items */}
-                  {Array.from({
-                    length: 5 - (nameList?._embedded.authors.length || 0),
-                  }).map((_, index) => (
-                    <TableRow key={`empty-${index}`} className="h-1/5">
-                      <TableCell>&nbsp;</TableCell>
-                      <TableCell>&nbsp;</TableCell>
-                      <TableCell>&nbsp;</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t flex-shrink-0">
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (page > 0) {
-                  setPage(page - 1);
-                }
-              }}
-              disabled={page === 0}
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Previous
-            </Button>
-
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>
-                Page {page + 1} of {nameList?.page.totalPages || 1}
-              </span>
-              <span>•</span>
-              <span>{nameList?.page.totalElements || 0} total authors</span>
-            </div>
-
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (nameList && page < nameList.page.totalPages - 1) {
-                  setPage(page + 1);
-                }
-              }}
-              disabled={!nameList || page >= nameList.page.totalPages - 1}
-            >
-              Next
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        </>
+      )}
     </div>
   );
 }

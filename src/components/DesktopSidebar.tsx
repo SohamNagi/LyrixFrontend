@@ -1,5 +1,5 @@
 import { Card, CardContent } from "./ui/card";
-import { Home, Music, Users, Info, Library } from "lucide-react";
+import { Home, Music, Users, Info } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { cn } from "@/lib/utils";
 

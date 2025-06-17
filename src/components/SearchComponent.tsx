@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
-import { Search, X } from "lucide-react";
+import { Music, Search, User, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useSearch } from "@/hooks/use-search";
@@ -143,7 +143,7 @@ export function SearchComponent({
       {isOpen && query && (
         <div
           ref={resultsRef}
-          className="absolute top-full left-0 right-0 z-50 mt-1 bg-background border border-border rounded-md shadow-lg max-h-80 overflow-auto w-full min-w-[300px] sm:min-w-[400px] lg:min-w-[500px]"
+          className="absolute top-full left-0 right-0 z-50 mt-1 bg-background border border-border rounded-md shadow-lg"
         >
           {loading && (
             <div className="p-4 text-center text-muted-foreground">
@@ -170,30 +170,61 @@ export function SearchComponent({
 
           {!loading && results.length > 0 && (
             <div className="py-2">
-              <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b">
-                Songs ({results.length})
-              </div>
-              {results.slice(0, 8).map((result) => (
-                <button
-                  key={result.id}
-                  onClick={() => handleResultClick(result.href)}
-                  className="w-full text-left px-3 py-3 hover:bg-muted focus:bg-muted focus:outline-none transition-colors group"
-                >
-                  <div className="flex items-start gap-3">
-                    <Search className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm line-clamp-1 group-hover:text-primary transition-colors">
-                        {result.title}
-                      </div>
-                      {result.preview && (
-                        <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                          {result.preview}
-                        </div>
-                      )}
-                    </div>
+              {/* Group results by type */}
+              {results.filter((r) => r.type === "author").length > 0 && (
+                <>
+                  <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b">
+                    Authors ({results.filter((r) => r.type === "author").length}
+                    )
                   </div>
-                </button>
-              ))}
+                  {results
+                    .filter((r) => r.type === "author")
+                    .slice(0, 4)
+                    .map((result) => (
+                      <button
+                        key={result.id}
+                        onClick={() => handleResultClick(result.href)}
+                        className="w-full text-left px-3 py-3 hover:bg-muted focus:bg-muted focus:outline-none transition-colors group"
+                      >
+                        <div className="flex items-start gap-3">
+                          <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm line-clamp-1 group-hover:text-primary transition-colors">
+                              {result.title}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                </>
+              )}
+              {results.filter((r) => r.type === "song").length > 0 && (
+                <>
+                  <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b">
+                    Songs ({results.filter((r) => r.type === "song").length})
+                  </div>
+                  {results
+                    .filter((r) => r.type === "song")
+                    .slice(0, 6)
+                    .map((result) => (
+                      <button
+                        key={result.id}
+                        onClick={() => handleResultClick(result.href)}
+                        className="w-full text-left px-3 py-3 hover:bg-muted focus:bg-muted focus:outline-none transition-colors group"
+                      >
+                        <div className="flex items-start gap-3">
+                          <Music className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm line-clamp-1 group-hover:text-primary transition-colors">
+                              {result.title}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                </>
+              )}
+
               {results.length > 8 && (
                 <div className="px-3 py-2 border-t">
                   <Button

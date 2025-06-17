@@ -26,8 +26,8 @@ function HeaderContent() {
         </Link>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex items-center space-x-1 mr-6">
+      {/* Navigation - Hidden on mobile */}
+      <nav className="hidden md:flex items-center space-x-1 mr-6">
         {navItems.map((item) => {
           const isActive =
             location.pathname === item.url ||
@@ -57,13 +57,11 @@ function HeaderContent() {
 
       {/* Right side - Search and Mode Toggle */}
       <div className="flex items-center space-x-3">
-        <div className="w-80">
-          <SearchComponent
-            className="w-full h-10"
-            showButton={false}
-            placeholder="Search songs, authors, or lyrics..."
-          />
-        </div>
+        <SearchComponent
+          className=" w-full min-w-80 h-10"
+          showButton={false}
+          placeholder="Search songs, authors, or lyrics..."
+        />
         <ModeToggle />
       </div>
     </>

@@ -3,8 +3,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Music,
-  Heart,
-  Globe,
   Sparkles,
   Users,
   Code,
@@ -13,7 +11,6 @@ import {
   Linkedin,
   Mail,
 } from "lucide-react";
-import { Link } from "react-router";
 
 export default function About() {
   const skills = [

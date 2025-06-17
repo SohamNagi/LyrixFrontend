@@ -1,33 +1,18 @@
 import { useState, useCallback } from "react";
 import { API_ENDPOINTS } from "@/config/api";
-
-interface Song {
-  title: string;
-  hindiLyrics: string;
-  urduLyrics: string;
-  englishLyrics: string;
-  hindiTheme: string | null;
-  urduTheme: string | null;
-  englishTheme: string | null;
-  _links: {
-    self: { href: string };
-    song: { href: string };
-    analyses: { href: string };
-    author: { href: string };
-  };
-}
+import { Song, Author } from "@/types";
 
 interface SearchResponse {
-  _embedded: {
-    songs: Song[];
-  };
+  query: string;
+  songs: Song[];
+  authors: Author[];
 }
 
 export interface SearchResult {
   id: string;
   title: string;
   href: string;
-  type: "song";
+  type: "song" | "author";
   preview?: string;
 }
 
@@ -47,11 +32,7 @@ export function useSearch() {
 
     try {
       const response = await fetch(
-        `${
-          API_ENDPOINTS.songs
-        }/search/findByTitleContainingIgnoreCase?title=${encodeURIComponent(
-          query
-        )}`
+        `${API_ENDPOINTS.search}?q=${encodeURIComponent(query)}`
       );
 
       if (!response.ok) {
@@ -59,20 +40,26 @@ export function useSearch() {
       }
 
       const data: SearchResponse = await response.json();
-      const songs = data._embedded?.songs || [];
 
-      const searchResults: SearchResult[] = songs.map((song) => {
-        const preview = extractPreview(
-          song.hindiLyrics || song.urduLyrics || song.englishLyrics || ""
-        );
-        return {
-          id: extractId(song._links.self.href),
+      const searchResults: SearchResult[] = [
+        // Map songs
+        ...(data.songs || []).map((song) => ({
+          id: song.id.toString(),
           title: song.title,
-          href: `/songs/${extractId(song._links.self.href)}`,
+          href: `/songs/${song.id}`,
           type: "song" as const,
-          preview: preview || undefined,
-        };
-      });
+          preview: extractPreview(
+            song.english_lyrics || song.hindi_lyrics || song.urdu_lyrics || ""
+          ),
+        })),
+        // Map authors
+        ...(data.authors || []).map((author) => ({
+          id: author.id.toString(),
+          title: author.name,
+          href: `/authors/${author.id}`,
+          type: "author" as const,
+        })),
+      ];
 
       setResults(searchResults);
     } catch (err) {
@@ -96,11 +83,6 @@ export function useSearch() {
     search,
     clear,
   };
-}
-
-function extractId(href: string): string {
-  const match = href.match(/\/(\d+)$/);
-  return match ? match[1] : "";
 }
 
 function extractPreview(lyrics: string): string {

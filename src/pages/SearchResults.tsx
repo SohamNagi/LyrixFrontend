@@ -5,43 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Music, User, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { API_ENDPOINTS } from "@/config/api";
+import { apiService } from "@/services/api";
+import { Song, Author } from "@/types";
 
-interface Song {
-  title: string;
-  hindiLyrics: string;
-  urduLyrics: string;
-  englishLyrics: string;
-  hindiTheme: string | null;
-  urduTheme: string | null;
-  englishTheme: string | null;
-  _links: {
-    self: { href: string };
-    song: { href: string };
-    analyses: { href: string };
-    author: { href: string };
-  };
-}
-
-interface Author {
-  name: string;
-  _links: {
-    self: { href: string };
-    author: { href: string };
-    songList: { href: string };
-  };
-}
-
-interface SongSearchResponse {
-  _embedded: {
-    songs: Song[];
-  };
-}
-
-interface AuthorSearchResponse {
-  _embedded: {
-    authors: Author[];
-  };
+interface SearchResponse {
+  query: string;
+  songs: Song[];
+  authors: Author[];
 }
 
 export default function SearchResults() {
@@ -76,38 +46,9 @@ export default function SearchResults() {
       setError(null);
 
       try {
-        // Search for songs
-        const songsResponse = await fetch(
-          `${
-            API_ENDPOINTS.songs
-          }/search/findByTitleContainingIgnoreCase?title=${encodeURIComponent(
-            query
-          )}`
-        );
-
-        // Search for authors
-        const authorsResponse = await fetch(
-          `${
-            API_ENDPOINTS.authors
-          }/search/findByNameContainingIgnoreCase?name=${encodeURIComponent(
-            query
-          )}`
-        );
-
-        if (songsResponse.ok) {
-          const songsData: SongSearchResponse = await songsResponse.json();
-          setSongs(songsData._embedded?.songs || []);
-        }
-
-        if (authorsResponse.ok) {
-          const authorsData: AuthorSearchResponse =
-            await authorsResponse.json();
-          setAuthors(authorsData._embedded?.authors || []);
-        }
-
-        if (!songsResponse.ok && !authorsResponse.ok) {
-          throw new Error("Failed to fetch search results");
-        }
+        const data = await apiService.globalSearch(query);
+        setSongs(data.songs || []);
+        setAuthors(data.authors || []);
       } catch (err) {
         setError("Failed to fetch search results. Please try again.");
         console.error("Search error:", err);
@@ -118,11 +59,6 @@ export default function SearchResults() {
 
     fetchResults();
   }, [query]);
-
-  const extractId = (href: string) => {
-    const match = href.match(/\/(\d+)$/);
-    return match ? match[1] : "";
-  };
 
   const totalResults = songs.length + authors.length;
 
@@ -202,57 +138,6 @@ export default function SearchResults() {
               )}
             </div>
 
-            {/* Songs Results */}
-            {songs.length > 0 && (
-              <section>
-                <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-                  <Music className="h-6 w-6" />
-                  Songs ({songs.length})
-                </h2>
-                <div className="grid gap-4">
-                  {songs.map((song, index) => (
-                    <Card
-                      key={index}
-                      className="hover:shadow-md transition-shadow"
-                    >
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-lg">
-                          <Link
-                            to={`/songs/${extractId(song._links.self.href)}`}
-                            className="text-primary hover:underline"
-                          >
-                            {song.title}
-                          </Link>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid md:grid-cols-3 gap-4 text-sm">
-                          {song.englishTheme && (
-                            <div>
-                              <p className="font-medium text-muted-foreground mb-1">
-                                Theme
-                              </p>
-                              <p>{song.englishTheme}</p>
-                            </div>
-                          )}
-                          {song.englishLyrics && (
-                            <div className="md:col-span-2">
-                              <p className="font-medium text-muted-foreground mb-1">
-                                Preview
-                              </p>
-                              <p className="line-clamp-2">
-                                {song.englishLyrics.substring(0, 150)}...
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </section>
-            )}
-
             {/* Authors Results */}
             {authors.length > 0 && (
               <section>
@@ -273,9 +158,7 @@ export default function SearchResults() {
                           </div>
                           <div className="flex-1">
                             <Link
-                              to={`/authors/${extractId(
-                                author._links.self.href
-                              )}`}
+                              to={`/authors/${author.id}`}
                               className="font-semibold text-primary hover:underline"
                             >
                               {author.name}
@@ -284,6 +167,57 @@ export default function SearchResults() {
                               Lyricist
                             </p>
                           </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Songs Results */}
+            {songs.length > 0 && (
+              <section>
+                <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+                  <Music className="h-6 w-6" />
+                  Songs ({songs.length})
+                </h2>
+                <div className="grid gap-4">
+                  {songs.map((song, index) => (
+                    <Card
+                      key={index}
+                      className="hover:shadow-md transition-shadow"
+                    >
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-lg">
+                          <Link
+                            to={`/songs/${song.id}`}
+                            className="text-primary hover:underline"
+                          >
+                            {song.title}
+                          </Link>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid md:grid-cols-3 gap-4 text-sm">
+                          {song.english_theme && (
+                            <div>
+                              <p className="font-medium text-muted-foreground mb-1">
+                                Theme
+                              </p>
+                              <p>{song.english_theme}</p>
+                            </div>
+                          )}
+                          {song.english_lyrics && (
+                            <div className="md:col-span-2">
+                              <p className="font-medium text-muted-foreground mb-1">
+                                Preview
+                              </p>
+                              <p className="line-clamp-2">
+                                {song.english_lyrics.substring(0, 150)}...
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
