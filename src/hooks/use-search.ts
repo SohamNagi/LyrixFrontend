@@ -14,6 +14,7 @@ export interface SearchResult {
   href: string;
   type: "song" | "author";
   preview?: string;
+  author?: Author; // Add author data for avatar display
 }
 
 export function useSearch() {
@@ -51,6 +52,7 @@ export function useSearch() {
           preview: extractPreview(
             song.english_lyrics || song.hindi_lyrics || song.urdu_lyrics || ""
           ),
+          author: song.author, // Include author data for avatar
         })),
         // Map authors
         ...(data.authors || []).map((author) => ({
@@ -58,6 +60,7 @@ export function useSearch() {
           title: author.name,
           href: `/authors/${author.id}`,
           type: "author" as const,
+          author: author, // Include author data for avatar
         })),
       ];
 

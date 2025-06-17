@@ -25,6 +25,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Song, Author, PaginatedResponse } from "@/types";
 import { apiService } from "@/services/api";
 import { toTitleCase, formatLyricsPreview } from "@/lib/text-utils";
+import AuthorAvatar from "@/components/AuthorAvatar";
 
 export default function SongList() {
   const [paginatedSongs, setPaginatedSongs] =
@@ -247,7 +248,7 @@ export default function SongList() {
                     {toTitleCase(song.title)}
                   </CardTitle>
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <User className="h-4 w-4" />
+                    <AuthorAvatar author={song.author} size="sm" />
                     <span className="text-sm">
                       {toTitleCase(song.author.name)}
                     </span>

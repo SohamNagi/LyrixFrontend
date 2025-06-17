@@ -15,6 +15,7 @@ import { Song } from "@/types";
 import { apiService } from "@/services/api";
 import { useThemeManager } from "@/hooks/use-theme-manager";
 import { LanguageCode } from "@/lib/api";
+import AuthorAvatar from "@/components/AuthorAvatar";
 
 export default function SongPage() {
   const { songID } = useParams<{ songID: string }>();
@@ -168,18 +169,23 @@ export default function SongPage() {
       <Card>
         <CardHeader>
           <div className="flex items-start justify-between">
-            <div>
-              <CardTitle className="text-3xl capitalize">
-                {song?.title || "Loading..."}
-              </CardTitle>
-              {song?.author && (
-                <Link
-                  to={`/authors/${song.author.id}`}
-                  className="text-blue-600 hover:text-blue-800 hover:underline"
-                >
-                  <p className="text-lg capitalize">{song.author.name}</p>
-                </Link>
-              )}
+            <div className="flex items-start gap-3">
+              <div>
+                <CardTitle className="text-3xl capitalize mb-2">
+                  {song?.title || "Loading..."}
+                </CardTitle>
+                {song?.author && (
+                  <Link
+                    to={`/authors/${song.author.id}`}
+                    className="text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-2"
+                  >
+                    <AuthorAvatar author={song.author} size="sm" />
+                    <span className="text-lg capitalize">
+                      {song.author.name}
+                    </span>
+                  </Link>
+                )}
+              </div>
             </div>
             <div className="flex gap-2 flex-shrink-0">
               <Button
@@ -205,12 +211,12 @@ export default function SongPage() {
               </Button>
             </div>
           </div>
-        </CardHeader>{" "}
+        </CardHeader>
         <CardContent>
           {/* Theme Section */}
           {song && (
             <div className="mb-6">
-              <div className="border-b pb-4 mb-4">
+              <div className="border-b border-t pb-4 mb-4">
                 <div className="flex items-center justify-between mb-3">
                   {!currentTheme && !loadingTheme && !themeError && (
                     <Button
@@ -255,12 +261,12 @@ export default function SongPage() {
                     </div>
                   ) : currentTheme ? (
                     <div>
-                      <Markdown>{currentTheme}</Markdown>
-                      {hasDynamicTheme && (
-                        <div className="mt-2 text-sm text-gray-500 italic">
-                          Generated via AI analysis
-                        </div>
-                      )}
+                      <p className=" text-sm">
+                        <Markdown>{currentTheme}</Markdown>
+                      </p>
+                      <div className="mt-2 text-xs text-gray-500 italic">
+                        Generated via AI analysis
+                      </div>
                     </div>
                   ) : (
                     <p className="text-gray-500 italic">
@@ -297,22 +303,23 @@ export default function SongPage() {
                   <div className="mt-6">
                     {loadingAnalysis ? (
                       <div className="space-y-4">
-                        <div className="h-32 bg-gray-200 animate-pulse rounded"></div>
-                        <div className="h-4 bg-gray-200 animate-pulse rounded w-28"></div>
-                        <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
-                        <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
+                        <div className="h-32 bg-muted animate-pulse rounded"></div>
+                        <div className="h-4 bg-muted animate-pulse rounded w-28"></div>
+                        <div className="h-4 bg-muted animate-pulse rounded"></div>
+                        <div className="h-4 bg-muted animate-pulse rounded"></div>
                       </div>
                     ) : analysis ? (
-                      <div className="prose prose-stone max-w-none">
+                      <div className="prose prose-stone max-w-none dark:prose-invert">
                         <div className="space-y-4">
                           <div>
-                            <h3 className="text-lg font-semibold mb-2">
+                            <h3 className="text-2xl font-semibold mb-2">
                               Original Line:
                             </h3>
-                            <p className="text-gray-700 capitalize font-medium">
+                            <p className="text-foreground capitalize font-medium">
                               {lineNum !== null
                                 ? lyrics
                                     .split("\n")
+                                    // eslint-disable-next-line no-unexpected-multiline
                                     [lineNum].normalize("NFD")
                                     .replace(/[\u0300-\u036f]/g, "")
                                 : "No original text available."}
@@ -323,13 +330,13 @@ export default function SongPage() {
                             .reverse()
                             .map(([key, value]) => (
                               <div key={key}>
-                                <h3 className="text-lg font-semibold mb-2 capitalize">
+                                <h3 className=" text-2xl font-semibold mb-2 capitalize">
                                   {key
                                     .replace(/([A-Z])/g, " $1")
                                     .replace(/^./, (str) => str.toUpperCase())}
                                   :
                                 </h3>
-                                <div className="text-gray-700">
+                                <div className="text-foreground">
                                   <Markdown>{value}</Markdown>
                                 </div>
                               </div>
@@ -337,7 +344,7 @@ export default function SongPage() {
                         </div>
                       </div>
                     ) : (
-                      <p className="text-gray-500">
+                      <p className="text-muted-foreground">
                         No analysis available for this line.
                       </p>
                     )}

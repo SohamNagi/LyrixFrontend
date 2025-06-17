@@ -1,14 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router";
-import {
-  ArrowLeft,
-  BookOpen,
-  Music,
-  Languages,
-  TrendingUp,
-  Filter,
-  Search,
-} from "lucide-react";
+import { ArrowLeft, Music, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Author, Song } from "@/types";
 import { apiService } from "@/services/api";
 import { toTitleCase, formatLyricsPreview } from "@/lib/text-utils";
+import AuthorAvatar from "@/components/AuthorAvatar";
 
 export default function AuthorPage() {
   const { authorID } = useParams<{ authorID: string }>();
@@ -151,9 +144,7 @@ export default function AuthorPage() {
       {/* Author Header */}
       <div className="mb-8">
         <div className="flex items-start gap-4 mb-6">
-          <div className="bg-primary/10 p-4 rounded-lg">
-            <BookOpen className="h-12 w-12 text-primary" />
-          </div>
+          <AuthorAvatar author={author} size="xl" />
           <div className="flex-1">
             <h1 className="text-4xl font-bold mb-2">
               {toTitleCase(author.name)}
@@ -210,25 +201,14 @@ export default function AuthorPage() {
                 className="hover:shadow-lg transition-shadow h-full flex flex-col"
               >
                 <CardHeader className="flex-shrink-0">
-                  <CardTitle className="line-clamp-2 text-lg min-h-[3.5rem] leading-7">
+                  <CardTitle className="line-clamp-2 text-lg min-h-[3.5rem]">
                     {toTitleCase(song.title)}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col">
-                  <div className="space-y-4 flex-1">
-                    {/* Preview */}
-                    {song.english_lyrics && (
-                      <div className="flex-1">
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {formatLyricsPreview(song.english_lyrics, 100)}
-                        </p>
-                      </div>
-                    )}
-
-                    <Separator />
-
+                  <div className="flex-1">
                     {/* Action Button */}
-                    <div className="mt-auto">
+                    <div className="">
                       <Button asChild size="sm" className="w-full">
                         <Link to={`/songs/${song.id}`}>View Song</Link>
                       </Button>

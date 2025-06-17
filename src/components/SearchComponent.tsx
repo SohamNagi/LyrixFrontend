@@ -4,6 +4,7 @@ import { Music, Search, User, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useSearch } from "@/hooks/use-search";
+import AuthorAvatar from "@/components/AuthorAvatar";
 
 // Simple debounce hook
 function useDebounce(callback: (value: string) => void, delay: number) {
@@ -187,7 +188,15 @@ export function SearchComponent({
                         className="w-full text-left px-3 py-3 hover:bg-muted focus:bg-muted focus:outline-none transition-colors group"
                       >
                         <div className="flex items-start gap-3">
-                          <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          {result.author ? (
+                            <AuthorAvatar
+                              author={result.author}
+                              size="sm"
+                              className="mt-0.5 flex-shrink-0"
+                            />
+                          ) : (
+                            <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          )}
                           <div className="flex-1 min-w-0">
                             <div className="font-medium text-sm line-clamp-1 group-hover:text-primary transition-colors">
                               {result.title}

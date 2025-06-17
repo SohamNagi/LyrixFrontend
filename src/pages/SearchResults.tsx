@@ -7,6 +7,7 @@ import { Search, Music, User, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { apiService } from "@/services/api";
 import { Song, Author } from "@/types";
+import AuthorAvatar from "@/components/AuthorAvatar";
 
 interface SearchResponse {
   query: string;
@@ -153,9 +154,7 @@ export default function SearchResults() {
                     >
                       <CardContent className="p-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                            <User className="h-6 w-6 text-primary" />
-                          </div>
+                          <AuthorAvatar author={author} size="md" />
                           <div className="flex-1">
                             <Link
                               to={`/authors/${author.id}`}
@@ -200,14 +199,6 @@ export default function SearchResults() {
                       </CardHeader>
                       <CardContent>
                         <div className="grid md:grid-cols-3 gap-4 text-sm">
-                          {song.english_theme && (
-                            <div>
-                              <p className="font-medium text-muted-foreground mb-1">
-                                Theme
-                              </p>
-                              <p>{song.english_theme}</p>
-                            </div>
-                          )}
                           {song.english_lyrics && (
                             <div className="md:col-span-2">
                               <p className="font-medium text-muted-foreground mb-1">

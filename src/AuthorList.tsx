@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { Users, Search, BookOpen } from "lucide-react";
+import { Users, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Author, PaginatedResponse } from "@/types";
 import { apiService } from "@/services/api";
 import { toTitleCase } from "@/lib/text-utils";
+import AuthorAvatar from "@/components/AuthorAvatar";
 
 export default function AuthorList() {
   const [allAuthors, setAllAuthors] = useState<Author[]>([]);
@@ -164,13 +165,13 @@ export default function AuthorList() {
               >
                 <CardHeader className="flex-shrink-0">
                   <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="line-clamp-2 mb-2 min-h-[3rem] leading-6">
-                        {toTitleCase(author.name)}
-                      </CardTitle>
-                    </div>
-                    <div className="bg-primary/10 p-2 rounded-lg">
-                      <BookOpen className="h-6 w-6 text-primary" />
+                    <div className="flex items-start gap-3 flex-1">
+                      <AuthorAvatar author={author} size="lg" />
+                      <div className="flex-1">
+                        <CardTitle className="line-clamp-2 mb-2 min-h-[3rem] leading-6">
+                          {toTitleCase(author.name)}
+                        </CardTitle>
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
