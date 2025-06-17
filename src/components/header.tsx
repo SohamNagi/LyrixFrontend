@@ -18,7 +18,7 @@ function HeaderContent() {
   return (
     <>
       {/* Logo */}
-      <div className="flex items-center gap-2 mr-6">
+      <div className="flex items-center gap-2">
         <Link
           to="/"
           className="flex items-center gap-2 h-10 px-3 rounded-md hover:bg-primary/20 transition-colors"
