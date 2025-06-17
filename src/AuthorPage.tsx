@@ -4,19 +4,11 @@ import { ArrowLeft, Music, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
 import { Author, Song } from "@/types";
 import { apiService } from "@/services/api";
-import { toTitleCase, formatLyricsPreview } from "@/lib/text-utils";
+import { toTitleCase } from "@/lib/text-utils";
 import AuthorAvatar from "@/components/AuthorAvatar";
 
 export default function AuthorPage() {
@@ -26,7 +18,6 @@ export default function AuthorPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [languageFilter, setLanguageFilter] = useState<string>("all");
   const [filteredSongs, setFilteredSongs] = useState<Song[]>([]);
 
   useEffect(() => {
@@ -65,34 +56,10 @@ export default function AuthorPage() {
       );
     }
 
-    // Filter by language
-    if (languageFilter !== "all") {
-      filtered = filtered.filter((song) => {
-        switch (languageFilter) {
-          case "en":
-            return song.english_lyrics;
-          case "hi":
-            return song.hindi_lyrics;
-          case "ur":
-            return song.urdu_lyrics;
-          default:
-            return true;
-        }
-      });
-    }
-
     setFilteredSongs(filtered);
-  }, [searchTerm, languageFilter, songs]);
+  }, [searchTerm, songs]);
 
-  const getLanguageStats = () => {
-    const stats = {
-      total: songs.length,
-      hindi: songs.filter((song) => song.hindi_lyrics).length,
-      urdu: songs.filter((song) => song.urdu_lyrics).length,
-      english: songs.filter((song) => song.english_lyrics).length,
-    };
-    return stats;
-  };
+
 
   if (loading) {
     return (
