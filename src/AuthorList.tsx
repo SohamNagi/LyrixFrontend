@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Author } from "@/types";
+import { Author, PaginatedResponse } from "@/types";
 import { apiService } from "@/services/api";
 import { toTitleCase } from "@/lib/text-utils";
 import AuthorAvatar from "@/components/AuthorAvatar";

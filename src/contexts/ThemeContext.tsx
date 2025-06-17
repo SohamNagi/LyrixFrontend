@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, ReactNode } from "react";
-import { apiService } from "@/lib/api";
+import { apiService, LanguageCode } from "@/lib/api";
 
 interface ThemeCache {
   [key: string]: {

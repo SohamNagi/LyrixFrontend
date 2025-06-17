@@ -9,6 +9,12 @@ import { apiService } from "@/services/api";
 import { Song, Author } from "@/types";
 import AuthorAvatar from "@/components/AuthorAvatar";
 
+interface SearchResponse {
+  query: string;
+  songs: Song[];
+  authors: Author[];
+}
+
 export default function SearchResults() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
