@@ -4,7 +4,7 @@ const config = {
     baseURL: "http://127.0.0.1:5000/api",
   },
   production: {
-    baseURL: "https://lyrixbackend.onrender.com/api",
+    baseURL: "https://sohamnagi.pythonanywhere.com/api",
   },
 };
 
