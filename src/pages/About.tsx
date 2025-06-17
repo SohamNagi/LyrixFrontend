@@ -37,7 +37,7 @@ export default function About() {
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="w-48 h-48 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary/20 to-primary/5">
                 <img
-                  src="https://media.licdn.com/dms/image/v2/D5603AQGlb7ay0AGH_w/profile-displayphoto-shrink_400_400/B56ZYQ.5_9GcAk-/0/1744041651441?e=1755734400&v=beta&t=y-YOaQy9brTsme66QPZPdWormQ_Bc5C5sZWgPbthM5o"
+                  src="/src/images/soham.jpeg"
                   alt="Profile"
                   className="w-full h-full object-cover"
                   onError={(e) => {

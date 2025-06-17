@@ -1,11 +1,13 @@
 import { SearchComponent } from "./SearchComponent";
 import ModeToggle from "./modeToggle";
-import { Library, Music, Users, Info } from "lucide-react";
+import { Music, Users, Info } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { cn } from "@/lib/utils";
+import { useUITheme } from "@/hooks/use-ui-theme";
 
 function HeaderContent() {
   const location = useLocation();
+  const { theme } = useUITheme();
 
   const navItems = [
     { title: "Songs", url: "/songs", icon: Music },
@@ -21,7 +23,13 @@ function HeaderContent() {
           to="/"
           className="flex items-center gap-2 h-10 px-3 rounded-md hover:bg-primary/20 transition-colors"
         >
-          <Library className="h-5 w-5 text-primary" />
+          <img
+            src="/favicon_dark.png"
+            alt="Lyrix"
+            className={`h-7 w-7 transition-all duration-200 ${
+              theme === "dark" ? "invert" : ""
+            }`}
+          />
           <span className="font-bold text-lg">Lyrix</span>
         </Link>
       </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router";
-import { Music, User, Search, Filter } from "lucide-react";
+import { Music, Search, Filter } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Song, Author, PaginatedResponse } from "@/types";
 import { apiService } from "@/services/api";
-import { toTitleCase, formatLyricsPreview } from "@/lib/text-utils";
+import { toTitleCase } from "@/lib/text-utils";
 import AuthorAvatar from "@/components/AuthorAvatar";
 
 export default function SongList() {
@@ -179,7 +179,7 @@ export default function SongList() {
           Song Library
         </h1>
         <p className="text-lg text-muted-foreground">
-          Explore our collection of 1314 songs and their poetic interpretations
+          Explore this collection of 1314 songs and their poetic interpretations
         </p>
       </div>
 

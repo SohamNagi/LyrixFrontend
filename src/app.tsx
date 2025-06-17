@@ -9,6 +9,7 @@ import SearchResults from "./pages/SearchResults";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { UIThemeProvider } from "./contexts/UIThemeContext";
 
 // Create a layout component to handle common elements like Header
 function RootLayout() {
@@ -76,7 +77,9 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <ErrorBoundary>
-      <RouterProvider router={router} />
+      <UIThemeProvider>
+        <RouterProvider router={router} />
+      </UIThemeProvider>
     </ErrorBoundary>
   );
 }

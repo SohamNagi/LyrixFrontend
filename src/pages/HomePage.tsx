@@ -8,6 +8,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Link } from "react-router";
+import AuthorAvatar from "@/components/AuthorAvatar";
 
 import {
   Card,
@@ -45,6 +46,42 @@ export default function HomePage() {
     },
   ];
 
+  const featuredArtists = [
+    {
+      id: 20,
+      name: "Mirza Ghalib",
+      description:
+        "Timeless poetry that captures love, loss, and existential depth with unmatched elegance.",
+    },
+    {
+      id: 1,
+      name: "Ahmad Faraz",
+      description:
+        "Rebellious and romantic verses that echo resistance and tender longing.",
+    },
+    {
+      id: 30,
+      name: "Waseem Barelvi",
+      description:
+        "Graceful ghazals that reflect human dignity, social insight, and emotional nuance.",
+    },
+  ];
+
+  const scrollToFeatures = () => {
+    const featuresSection = document.getElementById("features-section");
+    if (featuresSection) {
+      const headerHeight = 80; // Approximate header height
+      const elementPosition = featuresSection.getBoundingClientRect().top;
+      const offsetPosition =
+        elementPosition + window.pageYOffset - headerHeight;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen w-full">
       <div className="px-6 w-full">
@@ -70,9 +107,9 @@ export default function HomePage() {
                   </Link>
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="lg"
-                  className="text-lg px-8 py-4"
+                  className="text-lg border-2 px-8 py-4"
                   asChild
                 >
                   <Link to="/authors">
@@ -82,7 +119,10 @@ export default function HomePage() {
                 </Button>
               </div>
 
-              <div className="flex flex-col mt-24 animate-bounce items-center text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+              <div
+                className="flex flex-col mt-24 animate-bounce items-center text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+                onClick={scrollToFeatures}
+              >
                 <span className="text-sm mb-2">Scroll to explore</span>
                 <ChevronDown className="h-6 w-6" />
               </div>
@@ -91,7 +131,7 @@ export default function HomePage() {
         </section>
 
         {/* Features Section */}
-        <section className="w-full">
+        <section id="features-section" className="w-full">
           <div className="w-full">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Key Features</h2>
@@ -117,73 +157,98 @@ export default function HomePage() {
         <section className="w-full py-8">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">My Favourite Artists!</h2>
-              <p className="text-muted-foreground">
-                Discover the masters behind timeless poetry
-              </p>
+              <h2 className="text-3xl font-bold mb-4">My Favourite Artists</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-6">
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <img
-                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_cJOuVbiL_9bXJ-zqWURK1Rryp-ZcLs7t5g&s"
-                      className="w-12 h-12 rounded-full"
-                    />
-                  </div>
-                  <CardTitle>Mirza Ghalib</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Known for his profound poetry and meaningful lyrics that
-                    touch the soul.
-                  </p>
-                  <Button variant="outline" size="sm" className="w-full">
-                    <Link to="/authors/20">Browse All Songs</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <img
-                      src="https://ap-pics2.gotpoem.com/ap-pics/user/4913/775big.jpg?139x190"
-                      className="w-12 h-12 rounded-full"
-                    />
-                  </div>
-                  <CardTitle>Ameer Khusrau</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Bold verses that challenge society while celebrating human
-                    emotions.
-                  </p>
-                  <Button variant="outline" size="sm" className="w-full">
-                    <Link to="/authors/5">Browse All Songs</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <img
-                      src="https://assets-production.humap.site/0an6xplh879ukhrrj92514d7yhdn?fit=crop&crop=faces%2Centropy%2Ccenter&w=1680"
-                      className="w-12 h-12 rounded-full"
-                    />
-                  </div>
-                  <CardTitle>Allama Iqbal</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Modern poetry that bridges traditional themes with
-                    contemporary expression.
-                  </p>
-                  <Button variant="outline" size="sm" className="w-full">
-                    <Link to="/authors/3">Browse All Songs</Link>
-                  </Button>
-                </CardContent>
-              </Card>
+              {featuredArtists.map((artist) => (
+                <Card
+                  key={artist.id}
+                  className="hover:shadow-lg transition-shadow"
+                >
+                  <CardHeader className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <AuthorAvatar
+                        author={artist}
+                        size="lg"
+                        className="w-12 h-12"
+                      />
+                    </div>
+                    <CardTitle>{artist.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {artist.description}
+                    </p>
+                    <Button variant="outline" size="sm" className="w-full">
+                      <Link to={`/authors/${artist.id}`}>Browse All Songs</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
+          </div>
+        </section>
+
+        {/* About Me Section */}
+        <section className="w-full py-16">
+          <div className="max-w-4xl mx-auto">
+            <Card className="overflow-hidden">
+              <CardContent className="p-0">
+                <div className="grid md:grid-cols-2 gap-0">
+                  {/* Text Content */}
+                  <div className="p-8 md:p-12 flex flex-col justify-center">
+                    <div className="mb-6">
+                      <h2 className="text-3xl font-bold mb-4">About Me</h2>
+                      <div className="w-12 h-1 bg-primary rounded-full mb-2"></div>
+                    </div>
+                    <div className="text-muted-foreground leading-relaxed">
+                      <p>
+                        I'm a passionate full stack developer
+                        and lover of South Asian poetry and music. I created
+                        Lyrix to bridge the gap between beautiful traditional
+                        poetry and modern technology.
+                      </p>
+                      <p>
+                        Growing up listening to beautiful Urdu and Hindi songs,
+                        I often found myself wondering about the deeper meanings
+                        behind the poetic lyrics. While I could understand some
+                        words, the full beauty and cultural context often
+                        remained elusive.
+                      </p>
+                      <p>
+                        Lyrix is my attempt to make this rich literary tradition
+                        accessible to everyone - whether you're learning the
+                        language, rediscovering your roots, or simply curious
+                        about the profound poetry in South Asian music.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Photo */}
+                  <div className="relative h-64 md:h-full min-h-[400px] bg-gradient-to-br from-primary/10 to-primary/5">
+                    <img
+                      src="/src/images/soham.jpeg"
+                      alt="Soham"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback if image doesn't exist
+                        e.currentTarget.style.display = "none";
+                        e.currentTarget.parentElement!.innerHTML = `
+                          <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="text-center">
+                              <div class="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span class="text-2xl font-bold text-primary">SN</span>
+                              </div>
+                              <p class="text-muted-foreground">Soham Nagi</p>
+                            </div>
+                          </div>
+                        `;
+                      }}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </section>
 
@@ -209,7 +274,7 @@ export default function HomePage() {
                   <Button size="lg" asChild>
                     <Link to="/songs">Browse Songs</Link>
                   </Button>
-                  <Button size="lg" variant="outline" asChild>
+                  <Button size="lg" className="border-2" variant="outline" asChild>
                     <Link to="/authors">Meet the Poets</Link>
                   </Button>
                 </div>
