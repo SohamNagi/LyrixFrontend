@@ -12,7 +12,7 @@ export function getAllPossibleAuthorImageUrls(
   authorId: number | string
 ): string[] {
   return IMAGE_EXTENSIONS.map(
-    (ext) => `/src/images/authors/${authorId}.${ext}`
+    (ext) => `/authors/${authorId}.${ext}`
   );
 }
 

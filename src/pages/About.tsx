@@ -37,7 +37,7 @@ export default function About() {
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="w-48 h-48 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary/20 to-primary/5">
                 <img
-                  src="/src/images/soham.jpeg"
+                  src="/soham.jpeg"
                   alt="Profile"
                   className="w-full h-full object-cover"
                   onError={(e) => {

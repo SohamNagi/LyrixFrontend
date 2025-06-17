@@ -227,7 +227,7 @@ export default function HomePage() {
                   {/* Photo */}
                   <div className="relative h-64 md:h-full min-h-[400px] bg-gradient-to-br from-primary/10 to-primary/5">
                     <img
-                      src="/src/images/soham.jpeg"
+                      src="/soham.jpeg"
                       alt="Soham"
                       className="absolute inset-0 w-full h-full object-cover"
                       onError={(e) => {
