@@ -203,10 +203,10 @@ export default function HomePage() {
                     </div>
                     <div className="text-muted-foreground leading-relaxed">
                       <p>
-                        I'm a passionate full stack developer
-                        and lover of South Asian poetry and music. I created
-                        Lyrix to bridge the gap between beautiful traditional
-                        poetry and modern technology.
+                        I'm a passionate full stack developer and lover of South
+                        Asian poetry and music. I created Lyrix to bridge the
+                        gap between beautiful traditional poetry and modern
+                        technology.
                       </p>
                       <p>
                         Growing up listening to beautiful Urdu and Hindi songs,
@@ -274,7 +274,12 @@ export default function HomePage() {
                   <Button size="lg" asChild>
                     <Link to="/songs">Browse Songs</Link>
                   </Button>
-                  <Button size="lg" className="border-2" variant="outline" asChild>
+                  <Button
+                    size="lg"
+                    className="border-2"
+                    variant="outline"
+                    asChild
+                  >
                     <Link to="/authors">Meet the Poets</Link>
                   </Button>
                 </div>

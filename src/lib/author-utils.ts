@@ -11,9 +11,7 @@ const IMAGE_EXTENSIONS = ["jpeg", "jpg", "png", "webp", "avif"];
 export function getAllPossibleAuthorImageUrls(
   authorId: number | string
 ): string[] {
-  return IMAGE_EXTENSIONS.map(
-    (ext) => `/authors/${authorId}.${ext}`
-  );
+  return IMAGE_EXTENSIONS.map((ext) => `/authors/${authorId}.${ext}`);
 }
 
 /**
