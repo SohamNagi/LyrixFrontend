@@ -1,7 +1,7 @@
 // Utility functions for handling author images
 
 // Available image extensions in order of preference
-const IMAGE_EXTENSIONS = ["jpeg", "jpg", "png", "webp", "avif"];
+const IMAGE_EXTENSIONS = ["avif", "jpeg", "jpg", "png", "webp"];
 
 /**
  * Gets all possible image URLs for an author (for fallback handling)
