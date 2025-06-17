@@ -31,9 +31,16 @@ export const API_ENDPOINTS = {
   // Health check endpoint
   health: `${API_CONFIG.baseURL.replace("/api", "")}/health`,
 
+  // Theme endpoints
+  themes: `${API_CONFIG.baseURL}/themes`,
+
   // Dynamic endpoints (functions)
   transcription: (songId: string, lineNum: number, language: string) =>
     `${API_CONFIG.baseURL}/songs/${songId}/transcription?linenum=${lineNum}&language=${language}`,
   theme: (songId: string, language: string) =>
     `${API_CONFIG.baseURL}/songs/${songId}/theme?language=${language}`,
+
+  // Batch theme endpoint
+  batchThemes: (songId: string) =>
+    `${API_CONFIG.baseURL}/songs/${songId}/themes`,
 };

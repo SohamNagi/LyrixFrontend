@@ -38,6 +38,31 @@ class ApiService {
     }
   }
 
+  private async makeTextRequest(
+    url: string,
+    options?: RequestInit
+  ): Promise<string> {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+          ...options?.headers,
+        },
+        ...options,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const text = await response.text();
+      return text;
+    } catch (error) {
+      console.error("API text request failed:", error);
+      throw error;
+    }
+  }
+
   // Songs API
   async getAllSongs(): Promise<Song[]> {
     const response = await this.makeRequest<BackendPaginatedSongs>(
@@ -173,7 +198,82 @@ class ApiService {
   // Theme API
   async getSongTheme(songId: string, language: string): Promise<string> {
     const url = API_ENDPOINTS.theme(songId, language);
-    return this.makeRequest<string>(url);
+    return this.makeTextRequest(url);
+  }
+
+  // Enhanced theme fetching with caching
+  async getSongThemeWithCache(
+    songId: string,
+    language: string
+  ): Promise<string> {
+    const cacheKey = `theme_${songId}_${language}`;
+
+    // Check if theme is cached
+    const cachedTheme = sessionStorage.getItem(cacheKey);
+    if (cachedTheme) {
+      return cachedTheme;
+    }
+
+    // Fetch from API
+    const theme = await this.getSongTheme(songId, language);
+
+    // Cache the result
+    sessionStorage.setItem(cacheKey, theme);
+
+    return theme;
+  }
+
+  // Check if theme exists for a song in a specific language
+  async hasThemeForLanguage(
+    songId: string,
+    language: string
+  ): Promise<boolean> {
+    try {
+      const theme = await this.getSongTheme(songId, language);
+      return Boolean(theme && theme.trim().length > 0);
+    } catch {
+      return false;
+    }
+  }
+
+  // Get all available themes for a song
+  async getAllSongThemes(songId: string): Promise<{
+    en?: string;
+    hi?: string;
+    ur?: string;
+  }> {
+    const themes: { en?: string; hi?: string; ur?: string } = {};
+    const languages = ["en", "hi", "ur"];
+
+    // Try to fetch themes for all languages in parallel
+    const themePromises = languages.map(async (lang) => {
+      try {
+        const theme = await this.getSongTheme(songId, lang);
+        return { lang, theme };
+      } catch {
+        return { lang, theme: null };
+      }
+    });
+
+    const results = await Promise.allSettled(themePromises);
+
+    results.forEach((result) => {
+      if (result.status === "fulfilled" && result.value.theme) {
+        const { lang, theme } = result.value;
+        themes[lang as keyof typeof themes] = theme;
+      }
+    });
+
+    return themes;
+  }
+
+  // Preload themes for better UX
+  async preloadThemes(songId: string): Promise<void> {
+    try {
+      await this.getAllSongThemes(songId);
+    } catch (error) {
+      console.warn("Failed to preload themes:", error);
+    }
   }
 
   // Search API

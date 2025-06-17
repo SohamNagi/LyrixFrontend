@@ -122,7 +122,7 @@ async function apiRequest<T>(
   }
 }
 
-export type LanguageCode = "en" | "hi" | "ur";
+export type LanguageCode = "en" | "hin" | "urd";
 
 // API service functions
 export const apiService = {
@@ -141,6 +141,51 @@ export const apiService = {
   ): Promise<string> {
     const url = API_ENDPOINTS.theme(songId.toString(), language);
     return apiRequest<string>(url);
+  },
+
+  // Enhanced theme fetching with cache and fallback
+  async fetchSongThemeWithCache(
+    songId: string | number,
+    language: LanguageCode
+  ): Promise<string> {
+    const cacheKey = `theme_${songId}_${language}`;
+
+    // Check cache first
+    const cached = cacheUtils.get<string>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    // Fetch from API
+    const theme = await this.fetchSongTheme(songId, language);
+
+    // Cache for 10 minutes
+    cacheUtils.set(cacheKey, theme, 10);
+
+    return theme;
+  },
+
+  // Get available themes for a song
+  async getAvailableThemes(songId: string | number): Promise<{
+    en?: string;
+    hin?: string;
+    urd?: string;
+  }> {
+    const themes: { en?: string; hin?: string; urd?: string } = {};
+
+    // Try to fetch themes for all languages
+    for (const lang of ["en", "hin", "urd"] as LanguageCode[]) {
+      try {
+        const theme = await this.fetchSongTheme(songId, lang);
+        if (theme && theme.trim()) {
+          themes[lang] = theme;
+        }
+      } catch {
+        // Theme not available for this language
+      }
+    }
+
+    return themes;
   },
 
   async fetchLineTranscription(
