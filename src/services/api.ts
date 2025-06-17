@@ -2,7 +2,6 @@ import { API_ENDPOINTS } from "@/config/api";
 import {
   Song,
   Author,
-  LineAnalysis,
   PaginatedResponse,
   BackendPaginatedSongs,
   BackendPaginatedAuthors,
@@ -161,8 +160,7 @@ class ApiService {
 
   async getAuthorsPaginated(
     page: number = 1,
-    perPage: number = 12,
-    searchTerm?: string
+    perPage: number = 12
   ): Promise<PaginatedResponse<Author>> {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -190,9 +188,9 @@ class ApiService {
     songId: string,
     lineNum: number,
     language: string
-  ): Promise<LineAnalysis> {
+  ): Promise<Record<string, string>> {
     const url = API_ENDPOINTS.transcription(songId, lineNum, language);
-    return this.makeRequest<LineAnalysis>(url);
+    return this.makeRequest<Record<string, string>>(url);
   }
 
   // Theme API

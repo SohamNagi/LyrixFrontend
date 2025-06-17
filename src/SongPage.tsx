@@ -16,17 +16,11 @@ import { apiService } from "@/services/api";
 import { useThemeManager } from "@/hooks/use-theme-manager";
 import { LanguageCode } from "@/lib/api";
 
-interface Analysis {
-  translation: string;
-  interpretation: string;
-  connectionsToContext: string;
-}
-
 export default function SongPage() {
   const { songID } = useParams<{ songID: string }>();
 
   const [song, setSong] = useState<Song | null>(null);
-  const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [analysis, setAnalysis] = useState<Record<string, string> | null>(null);
   const [language, setLanguage] = useState<LanguageCode>("en");
   const [error, setError] = useState<string | null>(null);
   const [lyrics, setLyrics] = useState("");
@@ -112,38 +106,21 @@ export default function SongPage() {
       setLoadingAnalysis(true);
 
       try {
-        // Map our language codes to API language codes
-        const apiLanguage =
-          language === "hin"
-            ? "hindi"
-            : language === "urd"
-            ? "urdu"
-            : "english";
-
         const analysisData = await apiService.getLineAnalysis(
           songID,
-          lineNum + 1, // API expects 1-based line numbers
-          apiLanguage
+          lineNum, // API expects 1-based line numbers
+          language
         );
 
-        // Transform API response to our Analysis interface
-        const transformedAnalysis: Analysis = {
-          translation: analysisData.english_text || "No translation available.",
-          interpretation:
-            analysisData.interpretation || "No interpretation available.",
-          connectionsToContext:
-            "This line connects to the broader themes of the song and reflects the cultural context of the lyrics.",
-        };
-
-        setAnalysis(transformedAnalysis);
+        setAnalysis(analysisData);
       } catch {
         // Fallback to dummy analysis if API fails
-        const dummyAnalysis: Analysis = {
-          translation: `Translation for line ${
-            lineNum + 1
-          } in ${language} language.`,
-          interpretation: `This line represents the poet's inner emotions and uses metaphorical language.`,
-          connectionsToContext: `This line connects to the broader theme of the song and cultural context.`,
+        const dummyAnalysis: Record<string, string> = {
+          translation: `Translation for line ${lineNum} in ${language} language.`,
+          interpretation:
+            "This line represents the poet's inner emotions and uses metaphorical language.",
+          context:
+            "This line connects to the broader theme of the song and cultural context.",
         };
         setAnalysis(dummyAnalysis);
       } finally {
@@ -187,45 +164,114 @@ export default function SongPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle className="text-3xl capitalize">
-            {song?.title || "Loading..."}
-          </CardTitle>
-          {song?.author && (
-            <Link
-              to={`/authors/${song.author.id}`}
-              className="text-blue-600 hover:text-blue-800 hover:underline"
-            >
-              <p className="text-lg capitalize">by {song.author.name}</p>
-            </Link>
-          )}
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4 flex gap-2">
-            <Button
-              variant={language === "en" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setLanguage("en")}
-            >
-              English
-            </Button>
-            <Button
-              variant={language === "hin" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setLanguage("hin")}
-            >
-              Hindi
-            </Button>
-            <Button
-              variant={language === "urd" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setLanguage("urd")}
-            >
-              Urdu
-            </Button>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="text-3xl capitalize">
+                {song?.title || "Loading..."}
+              </CardTitle>
+              {song?.author && (
+                <Link
+                  to={`/authors/${song.author.id}`}
+                  className="text-blue-600 hover:text-blue-800 hover:underline"
+                >
+                  <p className="text-lg capitalize">{song.author.name}</p>
+                </Link>
+              )}
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <Button
+                variant={language === "en" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setLanguage("en")}
+              >
+                English
+              </Button>
+              <Button
+                variant={language === "hin" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setLanguage("hin")}
+              >
+                Hindi
+              </Button>
+              <Button
+                variant={language === "urd" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setLanguage("urd")}
+              >
+                Urdu
+              </Button>
+            </div>
           </div>
+        </CardHeader>{" "}
+        <CardContent>
+          {/* Theme Section */}
+          {song && (
+            <div className="mb-6">
+              <div className="border-b pb-4 mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  {!currentTheme && !loadingTheme && !themeError && (
+                    <Button
+                      onClick={fetchDynamicTheme}
+                      variant="secondary"
+                      size="sm"
+                    >
+                      Generate Theme
+                    </Button>
+                  )}
+                  {hasStaticTheme && hasDynamicTheme && (
+                    <Button onClick={refreshTheme} variant="outline" size="sm">
+                      Refresh
+                    </Button>
+                  )}
+                </div>
+                <div>
+                  {loadingTheme ? (
+                    <div className="flex items-center space-x-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Generating theme analysis...</span>
+                    </div>
+                  ) : themeError ? (
+                    <div className="text-red-500">
+                      <p>Failed to generate theme: {themeError}</p>
+                      <div className="space-x-2 mt-2">
+                        <Button
+                          onClick={fetchDynamicTheme}
+                          variant="outline"
+                          size="sm"
+                        >
+                          Try Again
+                        </Button>
+                        <Button
+                          onClick={clearThemeError}
+                          variant="ghost"
+                          size="sm"
+                        >
+                          Clear Error
+                        </Button>
+                      </div>
+                    </div>
+                  ) : currentTheme ? (
+                    <div>
+                      <Markdown>{currentTheme}</Markdown>
+                      {hasDynamicTheme && (
+                        <div className="mt-2 text-sm text-gray-500 italic">
+                          Generated via AI analysis
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 italic">
+                      No theme analysis available for this language. Click
+                      "Generate Theme" to create one.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="prose prose-stone capitalize max-w-none">
             {lyrics.split("\n").map((line: string, index: number) => (
@@ -257,46 +303,37 @@ export default function SongPage() {
                         <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
                       </div>
                     ) : analysis ? (
-                      <div className="space-y-6">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">
-                            Original Line:
-                          </h3>
-                          <p className="text-gray-700">
-                            {lineNum !== null
-                              ? lyrics.split("\n")[lineNum]
-                              : "No original text available."}
-                          </p>
-                        </div>
+                      <div className="prose prose-stone max-w-none">
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="text-lg font-semibold mb-2">
+                              Original Line:
+                            </h3>
+                            <p className="text-gray-700 capitalize font-medium">
+                              {lineNum !== null
+                                ? lyrics
+                                    .split("\n")
+                                    [lineNum].normalize("NFD")
+                                    .replace(/[\u0300-\u036f]/g, "")
+                                : "No original text available."}
+                            </p>
+                          </div>
 
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">
-                            Translation:
-                          </h3>
-                          <p className="text-gray-700">
-                            {analysis.translation ||
-                              "No translation available."}
-                          </p>
-                        </div>
-
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">
-                            Interpretation:
-                          </h3>
-                          <p className="text-gray-700">
-                            {analysis.interpretation ||
-                              "No interpretation available."}
-                          </p>
-                        </div>
-
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">
-                            Connections to Context:
-                          </h3>
-                          <p className="text-gray-700">
-                            {analysis.connectionsToContext ||
-                              "No connections available."}
-                          </p>
+                          {Object.entries(analysis)
+                            .reverse()
+                            .map(([key, value]) => (
+                              <div key={key}>
+                                <h3 className="text-lg font-semibold mb-2 capitalize">
+                                  {key
+                                    .replace(/([A-Z])/g, " $1")
+                                    .replace(/^./, (str) => str.toUpperCase())}
+                                  :
+                                </h3>
+                                <div className="text-gray-700">
+                                  <Markdown>{value}</Markdown>
+                                </div>
+                              </div>
+                            ))}
                         </div>
                       </div>
                     ) : (
@@ -309,73 +346,6 @@ export default function SongPage() {
               </Sheet>
             ))}
           </div>
-
-          {/* Theme Section */}
-          {song && (
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center justify-between">
-                  Theme & Interpretation
-                  {!currentTheme && !loadingTheme && !themeError && (
-                    <Button
-                      onClick={fetchDynamicTheme}
-                      variant="secondary"
-                      size="sm"
-                    >
-                      Generate Theme
-                    </Button>
-                  )}
-                  {hasStaticTheme && hasDynamicTheme && (
-                    <Button onClick={refreshTheme} variant="outline" size="sm">
-                      Refresh
-                    </Button>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loadingTheme ? (
-                  <div className="flex items-center space-x-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Generating theme analysis...</span>
-                  </div>
-                ) : themeError ? (
-                  <div className="text-red-500">
-                    <p>Failed to generate theme: {themeError}</p>
-                    <div className="space-x-2 mt-2">
-                      <Button
-                        onClick={fetchDynamicTheme}
-                        variant="outline"
-                        size="sm"
-                      >
-                        Try Again
-                      </Button>
-                      <Button
-                        onClick={clearThemeError}
-                        variant="ghost"
-                        size="sm"
-                      >
-                        Clear Error
-                      </Button>
-                    </div>
-                  </div>
-                ) : currentTheme ? (
-                  <div>
-                    <Markdown>{currentTheme}</Markdown>
-                    {hasDynamicTheme && (
-                      <div className="mt-2 text-sm text-gray-500 italic">
-                        Generated via AI analysis
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 italic">
-                    No theme analysis available for this language. Click
-                    "Generate Theme" to create one.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          )}
         </CardContent>
       </Card>
     </div>

@@ -254,16 +254,7 @@ export default function SongList() {
                   </div>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col">
-                  <div className="space-y-4 flex-1">
-                    {/* Preview of lyrics */}
-                    {song.english_lyrics && (
-                      <div className="flex-1">
-                        <p className="text-sm text-muted-foreground line-clamp-3">
-                          {formatLyricsPreview(song.english_lyrics, 120)}
-                        </p>
-                      </div>
-                    )}
-
+                  <div className="flex-1">
                     {/* Action Button */}
                     <div className="mt-auto">
                       <Button asChild className="w-full">
