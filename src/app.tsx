@@ -10,6 +10,8 @@ import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { UIThemeProvider } from "./contexts/UIThemeContext";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 // Create a layout component to handle common elements like Header
 function RootLayout() {
@@ -79,6 +81,8 @@ export default function App() {
     <ErrorBoundary>
       <UIThemeProvider>
         <RouterProvider router={router} />
+        <Analytics />
+        <SpeedInsights />
       </UIThemeProvider>
     </ErrorBoundary>
   );
