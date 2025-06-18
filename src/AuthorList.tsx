@@ -12,12 +12,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Author } from "@/types";
 import { apiService } from "@/services/api";
 import { toTitleCase } from "@/lib/text-utils";
 import AuthorAvatar from "@/components/AuthorAvatar";
+import { AuthorCardSkeleton } from "@/components/CardSkeletons";
 
 export default function AuthorList() {
   const [allAuthors, setAllAuthors] = useState<Author[]>([]);
@@ -81,31 +81,6 @@ export default function AuthorList() {
 
   const paginatedData = getPaginatedData();
 
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <Skeleton className="h-12 w-64 mb-4" />
-          <Skeleton className="h-4 w-96" />
-        </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-2/3" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -127,7 +102,7 @@ export default function AuthorList() {
           Authors & Poets
         </h1>
         <p className="text-lg text-muted-foreground">
-          Discover the brilliant words of {paginatedData.total} celebrated
+          Discover the brilliant words of {loading ? "..." : paginatedData.total} celebrated
           lyricists and poets
         </p>
       </div>
@@ -147,7 +122,11 @@ export default function AuthorList() {
       </div>
 
       {/* Authors Grid */}
-      {!paginatedData.data || paginatedData.data.length === 0 ? (
+      {loading ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <AuthorCardSkeleton />
+        </div>
+      ) : !paginatedData.data || paginatedData.data.length === 0 ? (
         <div className="text-center py-12">
           <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-xl font-semibold mb-2">No authors found</h3>

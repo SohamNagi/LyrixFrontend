@@ -20,18 +20,19 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Song, Author, PaginatedResponse } from "@/types";
 import { apiService } from "@/services/api";
 import { toTitleCase } from "@/lib/text-utils";
 import AuthorAvatar from "@/components/AuthorAvatar";
+import { SongCardSkeleton } from "@/components/CardSkeletons";
 
 export default function SongList() {
   const [paginatedSongs, setPaginatedSongs] =
     useState<PaginatedResponse<Song> | null>(null);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cardsLoading, setCardsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAuthor, setSelectedAuthor] = useState<string>("all");
@@ -51,6 +52,8 @@ export default function SongList() {
       try {
         if (isInitialLoad) {
           setLoading(true);
+        } else {
+          setCardsLoading(true);
         }
 
         let songsData;
@@ -77,7 +80,11 @@ export default function SongList() {
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
-        setLoading(false);
+        if (isInitialLoad) {
+          setLoading(false);
+        } else {
+          setCardsLoading(false);
+        }
       }
     },
     []
@@ -133,31 +140,6 @@ export default function SongList() {
     [fetchSongs, searchTerm, selectedAuthor]
   );
 
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <Skeleton className="h-12 w-64 mb-4" />
-          <Skeleton className="h-4 w-96" />
-        </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-2/3" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -193,7 +175,7 @@ export default function SongList() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
-              disabled={loading}
+              disabled={loading || cardsLoading}
             />
           </div>
           <div className="flex items-center gap-2">
@@ -201,7 +183,7 @@ export default function SongList() {
             <Select
               value={selectedAuthor}
               onValueChange={setSelectedAuthor}
-              disabled={loading}
+              disabled={loading || cardsLoading}
             >
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filter by author" />
@@ -221,51 +203,53 @@ export default function SongList() {
       </div>
 
       {/* Songs Grid */}
-      {!paginatedSongs?.data || paginatedSongs.data.length === 0 ? (
+      {loading ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <SongCardSkeleton />
+        </div>
+      ) : !paginatedSongs?.data || paginatedSongs.data.length === 0 ? (
         <div className="text-center py-12">
           <Music className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-xl font-semibold mb-2">No songs found</h3>
           <p className="text-muted-foreground">
-            {loading
-              ? "Loading..."
-              : "Try adjusting your search or filter criteria"}
+            Try adjusting your search or filter criteria
           </p>
         </div>
       ) : (
         <>
-          <div
-            className={`grid gap-6 md:grid-cols-2 lg:grid-cols-3 ${
-              loading ? "opacity-50" : ""
-            }`}
-          >
-            {paginatedSongs.data.map((song) => (
-              <Card
-                key={song.id}
-                className="hover:shadow-lg transition-shadow h-full flex flex-col"
-              >
-                <CardHeader className="flex-shrink-0">
-                  <CardTitle className="line-clamp-2 min-h-[3rem] leading-6">
-                    {toTitleCase(song.title)}
-                  </CardTitle>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <AuthorAvatar author={song.author} size="sm" />
-                    <span className="text-sm">
-                      {toTitleCase(song.author.name)}
-                    </span>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1 flex flex-col">
-                  <div className="flex-1">
-                    {/* Action Button */}
-                    <div className="mt-auto">
-                      <Button asChild className="w-full">
-                        <Link to={`/songs/${song.id}`}>Explore Song</Link>
-                      </Button>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {cardsLoading ? (
+              <SongCardSkeleton count={paginatedSongs.data.length} />
+            ) : (
+              paginatedSongs.data.map((song) => (
+                <Card
+                  key={song.id}
+                  className="hover:shadow-lg transition-shadow h-full flex flex-col"
+                >
+                  <CardHeader className="flex-shrink-0">
+                    <CardTitle className="line-clamp-2 min-h-[3rem] leading-6">
+                      {toTitleCase(song.title)}
+                    </CardTitle>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <AuthorAvatar author={song.author} size="sm" />
+                      <span className="text-sm">
+                        {toTitleCase(song.author.name)}
+                      </span>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col">
+                    <div className="flex-1">
+                      {/* Action Button */}
+                      <div className="mt-auto">
+                        <Button asChild className="w-full">
+                          <Link to={`/songs/${song.id}`}>Explore Song</Link>
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
 
           {/* Pagination */}
