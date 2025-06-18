@@ -24,12 +24,18 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Song, Author, PaginatedResponse } from "@/types";
 import { apiService } from "@/services/api";
 import { toTitleCase } from "@/lib/text-utils";
+import { getAllPossibleAuthorImageUrls } from "@/lib/author-utils";
 import AuthorAvatar from "@/components/AuthorAvatar";
 import { SongCardSkeleton } from "@/components/CardSkeletons";
 
+// Extended Song type with preloaded author image URL
+interface SongWithAuthorImage extends Song {
+  author: Author & { imageUrl?: string };
+}
+
 export default function SongList() {
   const [paginatedSongs, setPaginatedSongs] =
-    useState<PaginatedResponse<Song> | null>(null);
+    useState<PaginatedResponse<SongWithAuthorImage> | null>(null);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(true);
   const [cardsLoading, setCardsLoading] = useState(false);
@@ -41,6 +47,34 @@ export default function SongList() {
   const searchTimeoutRef = useRef<NodeJS.Timeout>();
 
   const ITEMS_PER_PAGE = 12;
+
+  // Helper function to preload image for an author
+  const preloadAuthorImage = async (
+    author: Author
+  ): Promise<Author & { imageUrl?: string }> => {
+    const possibleUrls = getAllPossibleAuthorImageUrls(author.id);
+
+    for (const url of possibleUrls) {
+      try {
+        // Create a promise that resolves when the image loads successfully
+        await new Promise<void>((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => reject();
+          img.src = url;
+        });
+
+        // If we get here, the image loaded successfully
+        return { ...author, imageUrl: url };
+      } catch {
+        // Continue to next URL
+        continue;
+      }
+    }
+
+    // No image found, return author without imageUrl
+    return { ...author };
+  };
 
   const fetchSongs = useCallback(
     async (
@@ -76,7 +110,18 @@ export default function SongList() {
           );
         }
 
-        setPaginatedSongs(songsData);
+        // Preload author images for all songs in parallel
+        const songsWithAuthorImages: SongWithAuthorImage[] = await Promise.all(
+          songsData.data.map(async (song) => ({
+            ...song,
+            author: await preloadAuthorImage(song.author),
+          }))
+        );
+
+        setPaginatedSongs({
+          ...songsData,
+          data: songsWithAuthorImages,
+        });
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
@@ -231,7 +276,11 @@ export default function SongList() {
                       {toTitleCase(song.title)}
                     </CardTitle>
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <AuthorAvatar author={song.author} size="sm" />
+                      <AuthorAvatar
+                        author={song.author}
+                        size="sm"
+                        preloadedImageUrl={song.author.imageUrl}
+                      />
                       <span className="text-sm">
                         {toTitleCase(song.author.name)}
                       </span>

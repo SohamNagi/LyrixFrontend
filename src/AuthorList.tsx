@@ -16,18 +16,52 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Author } from "@/types";
 import { apiService } from "@/services/api";
 import { toTitleCase } from "@/lib/text-utils";
+import { getAllPossibleAuthorImageUrls } from "@/lib/author-utils";
 import AuthorAvatar from "@/components/AuthorAvatar";
 import { AuthorCardSkeleton } from "@/components/CardSkeletons";
 
+// Extended Author type with preloaded image URL
+interface AuthorWithImage extends Author {
+  imageUrl?: string;
+}
+
 export default function AuthorList() {
-  const [allAuthors, setAllAuthors] = useState<Author[]>([]);
-  const [filteredAuthors, setFilteredAuthors] = useState<Author[]>([]);
+  const [allAuthors, setAllAuthors] = useState<AuthorWithImage[]>([]);
+  const [filteredAuthors, setFilteredAuthors] = useState<AuthorWithImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
   const ITEMS_PER_PAGE = 12;
+
+  // Helper function to preload image for an author
+  const preloadAuthorImage = async (
+    author: Author
+  ): Promise<AuthorWithImage> => {
+    const possibleUrls = getAllPossibleAuthorImageUrls(author.id);
+
+    for (const url of possibleUrls) {
+      try {
+        // Create a promise that resolves when the image loads successfully
+        await new Promise<void>((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => reject();
+          img.src = url;
+        });
+
+        // If we get here, the image loaded successfully
+        return { ...author, imageUrl: url };
+      } catch {
+        // Continue to next URL
+        continue;
+      }
+    }
+
+    // No image found, return author without imageUrl
+    return { ...author };
+  };
 
   // Calculate pagination for filtered results
   const getPaginatedData = () => {
@@ -48,8 +82,14 @@ export default function AuthorList() {
     try {
       setLoading(true);
       const authorsData = await apiService.getAuthorsPaginated(1, 1000); // Get all authors
-      setAllAuthors(authorsData.data);
-      setFilteredAuthors(authorsData.data);
+
+      // Preload images for all authors in parallel
+      const authorsWithImages = await Promise.all(
+        authorsData.data.map((author) => preloadAuthorImage(author))
+      );
+
+      setAllAuthors(authorsWithImages);
+      setFilteredAuthors(authorsWithImages);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -59,6 +99,7 @@ export default function AuthorList() {
 
   useEffect(() => {
     fetchAuthors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Filter authors when search term changes
@@ -144,7 +185,11 @@ export default function AuthorList() {
                 <CardHeader className="flex-shrink-0">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3 flex-1">
-                      <AuthorAvatar author={author} size="lg" />
+                      <AuthorAvatar
+                        author={author}
+                        size="lg"
+                        preloadedImageUrl={author.imageUrl}
+                      />
                       <div className="flex-1">
                         <CardTitle className="line-clamp-2 mb-2 min-h-[3rem] leading-6">
                           {toTitleCase(author.name)}

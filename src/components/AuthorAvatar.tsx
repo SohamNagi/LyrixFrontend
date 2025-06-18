@@ -11,6 +11,7 @@ interface AuthorAvatarProps {
   author: Author;
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
+  preloadedImageUrl?: string; // Optional preloaded image URL
 }
 
 const sizeClasses = {
@@ -24,11 +25,21 @@ export default function AuthorAvatar({
   author,
   size = "md",
   className,
+  preloadedImageUrl,
 }: AuthorAvatarProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [imageUrl, setImageUrl] = useState<string | null>(
+    preloadedImageUrl || null
+  );
+  const [isLoading, setIsLoading] = useState(!preloadedImageUrl);
 
   useEffect(() => {
+    // If we already have a preloaded image, don't fetch again
+    if (preloadedImageUrl) {
+      setImageUrl(preloadedImageUrl);
+      setIsLoading(false);
+      return;
+    }
+
     const tryLoadImage = async () => {
       const possibleUrls = getAllPossibleAuthorImageUrls(author.id);
 
@@ -58,7 +69,7 @@ export default function AuthorAvatar({
     };
 
     tryLoadImage();
-  }, [author.id]);
+  }, [author.id, preloadedImageUrl]);
 
   const initials = getAuthorInitials(author.name);
 
