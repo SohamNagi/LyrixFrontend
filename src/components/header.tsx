@@ -64,7 +64,7 @@ function HeaderContent() {
       <div className="flex-1"></div>
 
       {/* Right side - Search and Mode Toggle */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center ml-6 space-x-3">
         <SearchComponent
           className=" w-full min-w-80 h-10"
           showButton={false}
