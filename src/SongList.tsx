@@ -24,9 +24,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Song, Author, PaginatedResponse } from "@/types";
 import { apiService } from "@/services/api";
 import { toTitleCase } from "@/lib/text-utils";
-import { getAllPossibleAuthorImageUrls } from "@/lib/author-utils";
+import { getAuthorImageUrl } from "@/lib/author-utils";
 import AuthorAvatar from "@/components/AuthorAvatar";
 import { SongCardSkeleton } from "@/components/CardSkeletons";
+import { FadeTransition } from "@/components/FadeTransition";
+import { CardFadeIn } from "@/components/CardFadeIn";
 
 // Extended Song type with preloaded author image URL
 interface SongWithAuthorImage extends Song {
@@ -52,27 +54,27 @@ export default function SongList() {
   const preloadAuthorImage = async (
     author: Author
   ): Promise<Author & { imageUrl?: string }> => {
-    const possibleUrls = getAllPossibleAuthorImageUrls(author.id);
+    const directImageUrl = getAuthorImageUrl(author.id);
 
-    for (const url of possibleUrls) {
+    if (directImageUrl) {
       try {
-        // Create a promise that resolves when the image loads successfully
+        // Test if the image actually loads
         await new Promise<void>((resolve, reject) => {
           const img = new Image();
           img.onload = () => resolve();
           img.onerror = () => reject();
-          img.src = url;
+          img.src = directImageUrl;
         });
 
         // If we get here, the image loaded successfully
-        return { ...author, imageUrl: url };
+        return { ...author, imageUrl: directImageUrl };
       } catch {
-        // Continue to next URL
-        continue;
+        // Image failed to load
+        return { ...author };
       }
     }
 
-    // No image found, return author without imageUrl
+    // No image mapping found
     return { ...author };
   };
 
@@ -248,29 +250,33 @@ export default function SongList() {
       </div>
 
       {/* Songs Grid */}
-      {loading ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <SongCardSkeleton />
-        </div>
-      ) : !paginatedSongs?.data || paginatedSongs.data.length === 0 ? (
-        <div className="text-center py-12">
-          <Music className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-xl font-semibold mb-2">No songs found</h3>
-          <p className="text-muted-foreground">
-            Try adjusting your search or filter criteria
-          </p>
-        </div>
-      ) : (
-        <>
+      {!paginatedSongs?.data || paginatedSongs.data.length === 0 ? (
+        loading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {cardsLoading ? (
-              <SongCardSkeleton count={paginatedSongs.data.length} />
-            ) : (
-              paginatedSongs.data.map((song) => (
-                <Card
-                  key={song.id}
-                  className="hover:shadow-lg transition-shadow h-full flex flex-col"
-                >
+            <SongCardSkeleton />
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <Music className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold mb-2">No songs found</h3>
+            <p className="text-muted-foreground">
+              Try adjusting your search or filter criteria
+            </p>
+          </div>
+        )
+      ) : (
+        <FadeTransition
+          loading={loading || cardsLoading}
+          skeleton={
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <SongCardSkeleton count={paginatedSongs.data.length || 12} />
+            </div>
+          }
+        >
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {paginatedSongs.data.map((song, index) => (
+              <CardFadeIn key={song.id} delay={index * 50}>
+                <Card className="hover:shadow-lg transition-shadow h-full flex flex-col">
                   <CardHeader className="flex-shrink-0">
                     <CardTitle className="line-clamp-2 min-h-[3rem] leading-6">
                       {toTitleCase(song.title)}
@@ -297,88 +303,88 @@ export default function SongList() {
                     </div>
                   </CardContent>
                 </Card>
-              ))
-            )}
+              </CardFadeIn>
+            ))}
           </div>
+        </FadeTransition>
+      )}
 
-          {/* Pagination */}
-          {paginatedSongs && paginatedSongs.pages > 1 && (
-            <div className="mt-8">
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (currentPage > 1) {
-                          handlePageChange(currentPage - 1);
-                        }
-                      }}
-                      className={
-                        currentPage <= 1 ? "pointer-events-none opacity-50" : ""
-                      }
-                    />
-                  </PaginationItem>
-
-                  {Array.from(
-                    { length: Math.min(5, paginatedSongs.pages) },
-                    (_, i) => {
-                      const pageNum =
-                        currentPage <= 3
-                          ? i + 1
-                          : currentPage >= paginatedSongs.pages - 2
-                          ? paginatedSongs.pages - 4 + i
-                          : currentPage - 2 + i;
-
-                      if (pageNum < 1 || pageNum > paginatedSongs.pages)
-                        return null;
-
-                      return (
-                        <PaginationItem key={pageNum}>
-                          <PaginationLink
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handlePageChange(pageNum);
-                            }}
-                            isActive={currentPage === pageNum}
-                          >
-                            {pageNum}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
+      {/* Pagination */}
+      {paginatedSongs && paginatedSongs.pages > 1 && !loading && (
+        <div className="mt-8">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage > 1) {
+                      handlePageChange(currentPage - 1);
                     }
-                  )}
+                  }}
+                  className={
+                    currentPage <= 1 ? "pointer-events-none opacity-50" : ""
+                  }
+                />
+              </PaginationItem>
 
-                  {paginatedSongs.pages > 5 &&
-                    currentPage < paginatedSongs.pages - 2 && (
-                      <PaginationItem>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    )}
+              {Array.from(
+                { length: Math.min(5, paginatedSongs.pages) },
+                (_, i) => {
+                  const pageNum =
+                    currentPage <= 3
+                      ? i + 1
+                      : currentPage >= paginatedSongs.pages - 2
+                      ? paginatedSongs.pages - 4 + i
+                      : currentPage - 2 + i;
 
+                  if (pageNum < 1 || pageNum > paginatedSongs.pages)
+                    return null;
+
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(pageNum);
+                        }}
+                        isActive={currentPage === pageNum}
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                }
+              )}
+
+              {paginatedSongs.pages > 5 &&
+                currentPage < paginatedSongs.pages - 2 && (
                   <PaginationItem>
-                    <PaginationNext
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (currentPage < paginatedSongs.pages) {
-                          handlePageChange(currentPage + 1);
-                        }
-                      }}
-                      className={
-                        currentPage >= paginatedSongs.pages
-                          ? "pointer-events-none opacity-50"
-                          : ""
-                      }
-                    />
+                    <PaginationEllipsis />
                   </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
-        </>
+                )}
+
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage < paginatedSongs.pages) {
+                      handlePageChange(currentPage + 1);
+                    }
+                  }}
+                  className={
+                    currentPage >= paginatedSongs.pages
+                      ? "pointer-events-none opacity-50"
+                      : ""
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       )}
     </div>
   );

@@ -1,17 +1,33 @@
 // Utility functions for handling author images
+import authorImageMappings from "@/data/author-images.json";
 
-// Available image extensions in order of preference
-const IMAGE_EXTENSIONS = ["avif", "jpeg", "jpg", "png", "webp"];
+/**
+ * Gets the specific image URL for an author if it exists
+ * @param authorId - The ID of the author
+ * @returns The image URL if it exists, null otherwise
+ */
+export function getAuthorImageUrl(authorId: number | string): string | null {
+  const id = authorId.toString();
+  const filename = authorImageMappings[id as keyof typeof authorImageMappings];
+
+  if (filename) {
+    return `/authors/${filename}`;
+  }
+
+  return null;
+}
 
 /**
  * Gets all possible image URLs for an author (for fallback handling)
  * @param authorId - The ID of the author
- * @returns Array of possible image URLs in order of preference
+ * @returns Array of possible image URLs (now just one or empty)
+ * @deprecated Use getAuthorImageUrl instead for better performance
  */
 export function getAllPossibleAuthorImageUrls(
   authorId: number | string
 ): string[] {
-  return IMAGE_EXTENSIONS.map((ext) => `/authors/${authorId}.${ext}`);
+  const imageUrl = getAuthorImageUrl(authorId);
+  return imageUrl ? [imageUrl] : [];
 }
 
 /**

@@ -3,13 +3,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 interface SongCardSkeletonProps {
   count?: number;
+  className?: string;
 }
 
-export function SongCardSkeleton({ count = 12 }: SongCardSkeletonProps) {
+export function SongCardSkeleton({
+  count = 12,
+  className = "",
+}: SongCardSkeletonProps) {
   return (
     <>
       {Array.from({ length: count }).map((_, i) => (
-        <Card key={i} className="h-full flex flex-col">
+        <Card
+          key={i}
+          className={`h-full flex flex-col transition-opacity duration-300 ${className}`}
+        >
           <CardHeader className="flex-shrink-0">
             <Skeleton className="h-6 w-3/4 mb-2" />
             <div className="flex items-center gap-2">
@@ -32,13 +39,20 @@ export function SongCardSkeleton({ count = 12 }: SongCardSkeletonProps) {
 
 interface AuthorCardSkeletonProps {
   count?: number;
+  className?: string;
 }
 
-export function AuthorCardSkeleton({ count = 12 }: AuthorCardSkeletonProps) {
+export function AuthorCardSkeleton({
+  count = 12,
+  className = "",
+}: AuthorCardSkeletonProps) {
   return (
     <>
       {Array.from({ length: count }).map((_, i) => (
-        <Card key={i} className="h-full flex flex-col">
+        <Card
+          key={i}
+          className={`h-full flex flex-col transition-opacity duration-300 ${className}`}
+        >
           <CardHeader className="flex-shrink-0">
             <div className="flex items-start gap-3">
               <Skeleton className="h-16 w-16 rounded-full" />

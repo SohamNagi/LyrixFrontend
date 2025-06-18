@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Author } from "@/types";
-import {
-  getAuthorInitials,
-  getAllPossibleAuthorImageUrls,
-} from "@/lib/author-utils";
+import { getAuthorInitials, getAuthorImageUrl } from "@/lib/author-utils";
 import { cn } from "@/lib/utils";
 
 interface AuthorAvatarProps {
@@ -40,35 +37,27 @@ export default function AuthorAvatar({
       return;
     }
 
-    const tryLoadImage = async () => {
-      const possibleUrls = getAllPossibleAuthorImageUrls(author.id);
+    // Get the direct image URL from our mapping
+    const directImageUrl = getAuthorImageUrl(author.id);
 
-      for (const url of possibleUrls) {
-        try {
-          // Create a promise that resolves when the image loads successfully
-          await new Promise<void>((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => resolve();
-            img.onerror = () => reject();
-            img.src = url;
-          });
-
-          // If we get here, the image loaded successfully
-          setImageUrl(url);
-          setIsLoading(false);
-          return;
-        } catch {
-          // Continue to next URL
-          continue;
-        }
-      }
-
-      // No image found
+    if (directImageUrl) {
+      // Test if the image actually exists and loads
+      const img = new Image();
+      img.onload = () => {
+        setImageUrl(directImageUrl);
+        setIsLoading(false);
+      };
+      img.onerror = () => {
+        // Image doesn't exist or failed to load
+        setImageUrl(null);
+        setIsLoading(false);
+      };
+      img.src = directImageUrl;
+    } else {
+      // No image mapping found
       setImageUrl(null);
       setIsLoading(false);
-    };
-
-    tryLoadImage();
+    }
   }, [author.id, preloadedImageUrl]);
 
   const initials = getAuthorInitials(author.name);
