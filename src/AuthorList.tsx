@@ -193,7 +193,7 @@ export default function AuthorList() {
                 <Card className="hover:shadow-lg transition-shadow h-full flex flex-col">
                   <CardHeader className="flex-shrink-0">
                     <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3 flex-1">
+                      <div className="flex mt-6 items-start gap-3 flex-1">
                         <AuthorAvatar
                           author={author}
                           size="lg"

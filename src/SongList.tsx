@@ -281,7 +281,7 @@ export default function SongList() {
                     <CardTitle className="line-clamp-2 min-h-[3rem] leading-6">
                       {toTitleCase(song.title)}
                     </CardTitle>
-                    <div className="flex items-center gap-2 text-muted-foreground">
+                    <div className="flex items-center mt-6 gap-2 text-muted-foreground">
                       <AuthorAvatar
                         author={song.author}
                         size="sm"
