@@ -102,8 +102,7 @@ export default function AuthorList() {
           Authors & Poets
         </h1>
         <p className="text-lg text-muted-foreground">
-          Discover the brilliant words of {loading ? "..." : paginatedData.total} celebrated
-          lyricists and poets
+          Discover the brilliant words of 30 celebrated lyricists and poets
         </p>
       </div>
 
