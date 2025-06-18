@@ -192,15 +192,15 @@ export default function AuthorList() {
               <CardFadeIn key={author.id} delay={index * 50}>
                 <Card className="hover:shadow-lg transition-shadow h-full flex flex-col">
                   <CardHeader className="flex-shrink-0">
-                    <div className="flex items-start justify-between">
-                      <div className="flex mt-6 items-start gap-3 flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1">
                         <AuthorAvatar
                           author={author}
                           size="lg"
                           preloadedImageUrl={author.imageUrl}
                         />
-                        <div className="flex-1">
-                          <CardTitle className="line-clamp-2 mb-2 min-h-[3rem] leading-6">
+                        <div className="flex-1 flex items-center">
+                          <CardTitle className="line-clamp-2 leading-6">
                             {toTitleCase(author.name)}
                           </CardTitle>
                         </div>

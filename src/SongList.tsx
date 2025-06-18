@@ -278,10 +278,10 @@ export default function SongList() {
               <CardFadeIn key={song.id} delay={index * 50}>
                 <Card className="hover:shadow-lg transition-shadow h-full flex flex-col">
                   <CardHeader className="flex-shrink-0">
-                    <CardTitle className="line-clamp-2 min-h-[3rem] leading-6">
+                    <CardTitle className="line-clamp-2 min-h-[3rem] leading-6 mb-3">
                       {toTitleCase(song.title)}
                     </CardTitle>
-                    <div className="flex items-center mt-6 gap-2 text-muted-foreground">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <AuthorAvatar
                         author={song.author}
                         size="sm"
